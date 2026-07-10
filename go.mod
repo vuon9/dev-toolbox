@@ -13,7 +13,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.4.2
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stretchr/testify v1.11.1
-	github.com/wailsapp/wails/v3 v3.0.0-alpha2.111
+	github.com/wailsapp/wails/v3 v3.0.0-alpha2.117
 	golang.design/x/hotkey v0.6.1
 	golang.org/x/crypto v0.53.0
 	golang.org/x/net v0.56.0
@@ -43,9 +43,9 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
-	github.com/wailsapp/wails/webview2 v1.0.27 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
 	golang.org/x/arch v0.23.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
