@@ -210,6 +210,13 @@ test.describe('Text Utilities', () => {
     expect(clipboardText).toBe('copy this text');
   });
 
+  test('layout toggle switches between horizontal and vertical', async ({ page }) => {
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
+  });
+
   test('counts multi-line text correctly', async ({ page }) => {
     await fillEditor(page, 'text-utilities-input', 'Line one.\nLine two.\nLine three.');
 
