@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { ToolHeader } from '../components/ToolUI';
+import { ToolCopyButton } from '../components/inputs';
 import cronstrue from 'cronstrue';
 
 const CRON_FIELDS = {
@@ -195,24 +197,6 @@ function getFieldDescription(value, label) {
   return `At ${value}`;
 }
 
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px' }}>{description}</p>
-    </div>
-  );
-}
-
 export default function CronJobParser() {
   const [expression, setExpression] = useState('*/15 * * * *');
   const [fields, setFields] = useState(() => parseCronExpression('*/15 * * * *'));
@@ -359,15 +343,24 @@ export default function CronJobParser() {
           <div style={{ marginBottom: '20px' }}>
             <div
               style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                color: 'var(--muted-foreground)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 marginBottom: '8px',
               }}
             >
-              Expression
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--muted-foreground)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                Expression
+              </div>
+              <ToolCopyButton text={expression} />
             </div>
             <input
               type="text"
@@ -390,12 +383,23 @@ export default function CronJobParser() {
             />
             <div
               style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '8px',
                 marginTop: '6px',
-                fontSize: '12px',
-                color: error ? 'var(--destructive)' : 'var(--muted-foreground)',
               }}
             >
-              {error || description}
+              <div
+                style={{
+                  flex: 1,
+                  fontSize: '12px',
+                  color: error ? 'var(--destructive)' : 'var(--muted-foreground)',
+                }}
+              >
+                {error || description}
+              </div>
+              <ToolCopyButton text={description} />
             </div>
           </div>
 
