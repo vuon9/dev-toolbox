@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/Button';
-import { ScanBarcode, Download, QrCode, Hash, Columns, Trash2 } from 'lucide-react';
+import { ScanBarcode, Download, QrCode, Hash, Trash2 } from 'lucide-react';
 import { GenerateBarcode } from '../services/barcodeService';
+import { ToolHeader, ToolPane } from '../components/ToolUI';
+import { ToolLayout } from '../components/layout';
 
 const types = [
   {
@@ -43,80 +45,6 @@ const types = [
 
 // Size for barcode generation
 const BARCODE_SIZE = 512;
-
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px' }}>{description}</p>
-    </div>
-  );
-}
-
-function ToolTextArea({ label, value, onChange, placeholder }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <label
-        style={{
-          fontSize: '11px',
-          fontWeight: 600,
-          color: 'var(--muted-foreground)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          marginBottom: '8px',
-        }}
-      >
-        {label}
-      </label>
-      <textarea
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        style={{
-          flex: 1,
-          width: '100%',
-          minHeight: '200px',
-          padding: '12px',
-          fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-          fontSize: '14px',
-          lineHeight: 1.5,
-          backgroundColor: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          color: 'var(--foreground)',
-          resize: 'none',
-          outline: 'none',
-        }}
-      />
-    </div>
-  );
-}
-
-function ToolSplitPane({ children, isVertical }) {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: isVertical ? '1fr' : '1fr 1fr',
-        gap: '16px',
-        flex: 1,
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 function TypeToggle({ types, value, onChange }) {
   return (
@@ -180,16 +108,9 @@ export default function BarcodeGenerator() {
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isVertical, setIsVertical] = useState(
-    () => localStorage.getItem('barcode-layout') === 'vertical'
-  );
 
   // Get current type config
   const currentType = types.find((t) => t.id === type) || types[0];
-
-  useEffect(() => {
-    localStorage.setItem('barcode-layout', isVertical ? 'vertical' : 'horizontal');
-  }, [isVertical]);
 
   // Handle type change - update input with appropriate default
   const handleTypeChange = (newType) => {
@@ -287,35 +208,10 @@ export default function BarcodeGenerator() {
       >
         <TypeToggle types={types} value={type} onChange={handleTypeChange} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Button variant="danger" onClick={() => setInput('')}>
-            <Trash2 style={{ width: '14px', height: '14px' }} />
-            Clear
-          </Button>
-          <div
-            style={{
-              width: '1px',
-              height: '16px',
-              backgroundColor: 'var(--border)',
-              margin: '0 8px',
-            }}
-          />
-          <Button
-            variant="secondary"
-            onClick={() => setIsVertical(!isVertical)}
-            style={{ padding: '4px' }}
-            title="Toggle layout orientation"
-            aria-label="Toggle layout orientation"
-          >
-            <Columns
-              style={{
-                width: '14px',
-                height: '14px',
-                transform: isVertical ? 'rotate(90deg)' : 'none',
-              }}
-            />
-          </Button>
-        </div>
+        <Button variant="danger" onClick={() => setInput('')}>
+          <Trash2 style={{ width: '14px', height: '14px' }} />
+          Clear
+        </Button>
       </div>
 
       {error && (
@@ -334,15 +230,14 @@ export default function BarcodeGenerator() {
         </div>
       )}
 
-      <ToolSplitPane isVertical={isVertical}>
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <ToolTextArea
-            label="Input Content"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={currentType.placeholder}
-          />
-        </div>
+      <ToolLayout toolKey="barcode" persist togglePosition="top-right">
+        <ToolPane
+          label="Input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={currentType.placeholder}
+          data-testid="barcode-input"
+        />
 
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <label
@@ -434,7 +329,7 @@ export default function BarcodeGenerator() {
             )}
           </div>
         </div>
-      </ToolSplitPane>
+      </ToolLayout>
     </div>
   );
 }
