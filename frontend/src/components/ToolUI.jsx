@@ -63,9 +63,11 @@ export function ToolPane({
 }
 
 export function ToolSplitPane({ children, columnCount = 2, className = '' }) {
-  const gridCols = columnCount === 1 ? 'grid-cols-1' : `grid-cols-${columnCount}`;
   return (
-    <div className={`grid ${gridCols} gap-4 flex-1 min-h-0 overflow-hidden ${className}`}>
+    <div
+      className={`grid gap-4 flex-1 min-h-0 overflow-hidden ${className}`}
+      style={{ gridTemplateColumns: columnCount === 1 ? '1fr' : `repeat(${columnCount}, 1fr)` }}
+    >
       {children}
     </div>
   );
