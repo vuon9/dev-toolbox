@@ -120,4 +120,37 @@ test.describe('Text Diff Checker', () => {
     await expect(page.getByText('Original', { exact: true })).toBeVisible();
     await expect(page.getByText('Modified', { exact: true })).toBeVisible();
   });
+
+  test('toggles input layout orientation', async ({ page }) => {
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
+  });
+
+  test('copy button copies input to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await fillEditor(page, 'text-diff-original', 'copy this original');
+
+    const copyButton = page.locator('button[title="Copy to clipboard"]').first();
+    await copyButton.click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toBe('copy this original');
+  });
+
+  test('copy button copies diff result to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await fillEditor(page, 'text-diff-original', 'A\nB');
+    await fillEditor(page, 'text-diff-modified', 'A\nC');
+
+    await page.getByRole('button', { name: 'Diff', exact: true }).click();
+
+    // In diff mode only the diff-result copy button remains
+    const copyButton = page.locator('button[title="Copy to clipboard"]');
+    await copyButton.click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toBe(' A\n-B\n+C');
+  });
 });
