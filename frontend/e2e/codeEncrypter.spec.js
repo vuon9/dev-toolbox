@@ -144,19 +144,10 @@ test.describe('Code Encrypter', () => {
   });
 
   test('layout toggle switches between horizontal and vertical', async ({ page }) => {
-    const splitPane = page.locator('div[style*="grid-template-columns"]');
-
-    const initialStyle = await splitPane.getAttribute('style');
-    expect(initialStyle).toContain('1fr 1fr');
-
-    const mainContent = page.locator('div').filter({ hasText: 'Code Encrypter' }).first();
-    const toggleButton = mainContent
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .nth(1);
-    await toggleButton.click();
-
-    await expect(splitPane).toHaveAttribute('style', /1fr;/);
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
   });
 
   test('copy button copies output to clipboard', async ({ page, context }) => {
@@ -218,5 +209,33 @@ test.describe('Code Encrypter', () => {
     // Reload page
     await page.reload();
     await expect(page.locator('select').first()).toHaveValue('ChaCha20');
+  });
+
+  test('gates unimplemented methods: 6 options disabled and labelled "(unavailable)"', async ({
+    page,
+  }) => {
+    const select = page.locator('select').first();
+
+    // Unimplemented methods are disabled and labelled
+    for (const m of ['Rabbit', 'RC4Drop', 'Blowfish', 'Twofish', 'Fernet', 'BIP38']) {
+      const option = select.locator(`option[value="${m}"]`);
+      await expect(option).toBeDisabled();
+      await expect(option).toHaveText(`${m} (unavailable)`);
+    }
+
+    // All 9 implemented methods remain selectable
+    for (const m of [
+      'AES',
+      'AES-GCM',
+      'DES',
+      'Triple DES',
+      'RC4',
+      'ChaCha20',
+      'Salsa20',
+      'RSA',
+      'XOR',
+    ]) {
+      await expect(select.locator(`option[value="${m}"]`)).toBeEnabled();
+    }
   });
 });

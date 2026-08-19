@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '../../components/ui/Button';
 import {
   Play,
   FileJson,
   FileType,
   FileCode,
-  Columns,
   Trash2,
   Plus,
   HelpCircle,
@@ -14,8 +13,9 @@ import {
 } from 'lucide-react';
 import { Generate } from '../../services/dataGeneratorService';
 import { HELP_CONTENT } from './constants';
-import HighlightedCode from '../../components/inputs/HighlightedCode';
-import EditorToggle from '../../components/inputs/EditorToggle';
+import { ToolHeader } from '../../components/ToolUI';
+import { ToolEditorPane, EditorToggle } from '../../components/inputs';
+import { ToolLayout } from '../../components/layout';
 
 const formats = [
   { id: 'json', label: 'JSON', icon: FileJson },
@@ -25,6 +25,15 @@ const formats = [
   { id: 'xml', label: 'XML', icon: FileCode },
   { id: 'yaml', label: 'YAML', icon: FileType },
 ];
+
+const formatLanguages = {
+  json: 'json',
+  csv: 'plaintext',
+  tsv: 'plaintext',
+  raw: 'plaintext',
+  xml: 'xml',
+  yaml: 'plaintext',
+};
 
 const fieldTypes = [
   'UUID',
@@ -105,180 +114,6 @@ const defaultSchemaFields = [
   { label: 'phone', type: 'Phone' },
   { label: 'created_at', type: 'Recent' },
 ];
-
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px' }}>{description}</p>
-    </div>
-  );
-}
-
-function ToolTextArea({
-  label,
-  value,
-  onChange,
-  placeholder,
-  readOnly,
-  highlightOn,
-  language = 'plaintext',
-  dataTestId,
-}) {
-  const handleCopy = () => {
-    if (value) navigator.clipboard.writeText(value);
-  };
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-        }}
-      >
-        <label
-          style={{
-            fontSize: '11px',
-            fontWeight: 600,
-            color: 'var(--muted-foreground)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}
-        >
-          {label}
-        </label>
-        <button
-          onClick={handleCopy}
-          disabled={!value}
-          title="Copy to clipboard"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '28px',
-            height: '28px',
-            padding: '6px',
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderRadius: '4px',
-            color: value ? 'var(--muted-foreground)' : 'var(--border)',
-            cursor: value ? 'pointer' : 'not-allowed',
-            transition: 'all 0.15s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (value) {
-              e.currentTarget.style.backgroundColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--foreground)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = value ? 'var(--muted-foreground)' : 'var(--border)';
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-        </button>
-      </div>
-      {readOnly ? (
-        highlightOn ? (
-          <HighlightedCode
-            code={value}
-            language={language}
-            copyable={false}
-            dataTestId={dataTestId}
-            ariaLabel={label}
-          />
-        ) : (
-          <textarea
-            data-testid={dataTestId ? `${dataTestId}-content` : undefined}
-            aria-label={label}
-            value={value}
-            readOnly
-            placeholder={placeholder}
-            style={{
-              flex: 1,
-              width: '100%',
-              minHeight: '300px',
-              padding: '12px',
-              fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-              fontSize: '13px',
-              lineHeight: 1.5,
-              backgroundColor: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              color: 'var(--foreground)',
-              resize: 'none',
-              outline: 'none',
-            }}
-          />
-        )
-      ) : (
-        <textarea
-          data-testid={dataTestId ? `${dataTestId}-content` : undefined}
-          aria-label={label}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          style={{
-            flex: 1,
-            width: '100%',
-            minHeight: '300px',
-            padding: '12px',
-            fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-            fontSize: '13px',
-            lineHeight: 1.5,
-            backgroundColor: 'var(--background)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
-            color: 'var(--foreground)',
-            resize: 'none',
-            outline: 'none',
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-function ToolSplitPane({ children, isVertical }) {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: isVertical ? '1fr' : '1fr 1fr',
-        gap: '16px',
-        flex: 1,
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 function SelectDropdown({ label, value, onChange, options, width = '160px' }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -801,14 +636,8 @@ export default function DataGenerator() {
   const [output, setOutput] = useState('');
   const [schema, setSchema] = useState(defaultSchemaFields);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isVertical, setIsVertical] = useState(
-    () => localStorage.getItem('datagen-layout') === 'vertical'
-  );
+  const [error, setError] = useState('');
   const [showHelp, setShowHelp] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('datagen-layout', isVertical ? 'vertical' : 'horizontal');
-  }, [isVertical]);
 
   const buildTemplate = (schemaFields) => {
     const fields = schemaFields
@@ -822,6 +651,7 @@ export default function DataGenerator() {
 
   const handleGenerate = async () => {
     setIsGenerating(true);
+    setError('');
     try {
       const template = buildTemplate(schema);
       const res = await Generate({ format, count, template });
@@ -844,11 +674,13 @@ export default function DataGenerator() {
           setOutput(res.output);
         }
       } else if (res && res.error) {
+        setError(res.error);
         setOutput(`Error: ${res.error}`);
       } else {
         setOutput(JSON.stringify(res, null, 2));
       }
     } catch (err) {
+      setError(err.message);
       setOutput(`Error: ${err.message}`);
     } finally {
       setIsGenerating(false);
@@ -923,23 +755,10 @@ export default function DataGenerator() {
             }}
           />
           <EditorToggle enabled={highlightOn} onToggle={setHighlightOn} toolKey={TOOL_KEY} />
-          <Button
-            variant="secondary"
-            onClick={() => setIsVertical(!isVertical)}
-            style={{ padding: '4px' }}
-          >
-            <Columns
-              style={{
-                width: '14px',
-                height: '14px',
-                transform: isVertical ? 'rotate(90deg)' : 'none',
-              }}
-            />
-          </Button>
         </div>
       </div>
 
-      <ToolSplitPane isVertical={isVertical}>
+      <ToolLayout toolKey={TOOL_KEY} persist togglePosition="top-right">
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
           <label
             style={{
@@ -1005,14 +824,16 @@ export default function DataGenerator() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <ToolTextArea
-            label="Generated Output"
+          <ToolEditorPane
+            label="Output"
             value={output}
             readOnly
-            placeholder="Generated data will appear here..."
             highlightOn={highlightOn}
-            language="json"
+            language={formatLanguages[format] || 'plaintext'}
+            placeholder="Generated data will appear here..."
             dataTestId="data-generator-output"
+            ariaLabel="Output"
+            error={!!error}
           />
           {output && (
             <div style={{ marginTop: '12px' }}>
@@ -1022,7 +843,7 @@ export default function DataGenerator() {
             </div>
           )}
         </div>
-      </ToolSplitPane>
+      </ToolLayout>
       <HelpModal open={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );

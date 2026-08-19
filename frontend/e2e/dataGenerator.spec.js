@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { readEditorText, expectEditorNotEmpty, expectEditorText } from './helpers/editor';
+import {
+  readEditorText,
+  expectEditorNotEmpty,
+  expectEditorContains,
+  expectEditorText,
+} from './helpers/editor';
 
 test.describe('Data Generator', () => {
   test.beforeEach(async ({ page }) => {
@@ -39,6 +44,29 @@ test.describe('Data Generator', () => {
     const parsed = JSON.parse(text);
     expect(Array.isArray(parsed)).toBe(true);
     expect(parsed.length).toBe(10);
+  });
+
+  test('successful generate clears a previous error', async ({ page }) => {
+    const fieldName = page.locator('input[placeholder="Field name"]').first();
+    const outputPane = page.getByTestId('data-generator-output-pane');
+
+    // Trigger an error: a field name containing "{{" makes the built template
+    // invalid for the Go template engine.
+    await fieldName.fill('{{bad');
+    await page.getByRole('button', { name: 'Generate' }).click();
+
+    await expectEditorContains(page, 'data-generator-output', /Error/i);
+    await expect(outputPane).toHaveCSS('border-top-width', '1px');
+
+    // A subsequent successful generate must clear the error state entirely.
+    await fieldName.fill('id');
+    await page.getByRole('button', { name: 'Generate' }).click();
+
+    await expectEditorNotEmpty(page, 'data-generator-output');
+    const text = await readEditorText(page, 'data-generator-output');
+    expect(text).not.toMatch(/^Error/);
+    expect(JSON.parse(text).length).toBe(10);
+    await expect(outputPane).toHaveCSS('border-top-width', '0px');
   });
 
   test('format selection changes output format', async ({ page }) => {
@@ -98,23 +126,10 @@ test.describe('Data Generator', () => {
     await expect(page.getByRole('heading', { name: 'Documentation & Help' })).not.toBeVisible();
   });
 
-  test('layout toggle switches orientation', async ({ page }) => {
-    const splitPane = page.locator('div[style*="grid-template-columns"]');
-    const initialStyle = await splitPane.getAttribute('style');
-    expect(initialStyle).toContain('1fr 1fr');
-
-    const controlsDiv = page
-      .locator('div')
-      .filter({ has: page.getByRole('button', { name: 'Generate' }) })
-      .filter({ has: page.getByRole('button', { name: 'Help' }) })
-      .last();
-    const layoutToggle = controlsDiv
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .filter({ hasText: '' })
-      .last();
-    await layoutToggle.click();
-
-    await expect(splitPane).toHaveAttribute('style', /1fr;/);
+  test('layout toggle switches between horizontal and vertical', async ({ page }) => {
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
   });
 });

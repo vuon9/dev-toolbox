@@ -71,10 +71,23 @@ test.describe('Barcode / QR Code Generator', () => {
   });
 
   test('should toggle layout orientation', async ({ page }) => {
-    const layoutButton = page.getByRole('button', { name: 'Toggle layout orientation' });
-    await layoutButton.click();
-    // After toggle, the layout should be vertical (single column grid)
-    // Just verify the button is clickable and no error occurs
-    await expect(page.getByRole('heading', { name: /Barcode \/ QR Code/ })).toBeVisible();
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
+  });
+
+  test('copy button copies input to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+
+    const textarea = page.locator('textarea').first();
+    const inputValue = await textarea.inputValue();
+    expect(inputValue).not.toBe('');
+
+    const copyButton = page.locator('button[title="Copy to clipboard"]').first();
+    await copyButton.click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toBe(inputValue);
   });
 });

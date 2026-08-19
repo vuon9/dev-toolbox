@@ -1,44 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Check, Copy, Plus, RefreshCw, SortAsc, Trash2 } from 'lucide-react';
+import { Plus, RefreshCw, SortAsc, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { ToolHeader } from '../../components/ToolUI';
+import { ToolInput, ToolCopyButton } from '../../components/inputs';
 import { buildUrl, parseUrlInput, sortQueryRows } from './urlUtils';
 
 const SAMPLE_URL = 'https://example.com:8443/api/search?q=hello%20world&debug=true#results';
-
-function Field({ label, value, onChange, placeholder }) {
-  return (
-    <label style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
-      <span
-        style={{
-          fontSize: '11px',
-          fontWeight: 600,
-          color: 'var(--muted-foreground)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        }}
-      >
-        {label}
-      </span>
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        style={{
-          height: '36px',
-          width: '100%',
-          border: '1px solid var(--border)',
-          borderRadius: '6px',
-          backgroundColor: 'var(--card)',
-          color: 'var(--foreground)',
-          padding: '0 10px',
-          fontSize: '13px',
-          outline: 'none',
-          fontFamily: label === 'Path' ? "'Menlo', 'Monaco', 'Courier New', monospace" : 'inherit',
-        }}
-      />
-    </label>
-  );
-}
 
 function createRow() {
   return { id: `param-${crypto.randomUUID()}`, key: '', value: '' };
@@ -57,7 +24,6 @@ export default function UrlInspector() {
     { id: 'debug-1', key: 'debug', value: 'true' },
   ]);
   const [parseError, setParseError] = useState(null);
-  const [copied, setCopied] = useState(false);
 
   const builtResult = useMemo(() => buildUrl({ ...parts, queryRows }), [parts, queryRows]);
 
@@ -80,13 +46,6 @@ export default function UrlInspector() {
 
   const removeRow = (id) => {
     setQueryRows((rows) => rows.filter((row) => row.id !== id));
-  };
-
-  const copyBuiltUrl = async () => {
-    if (!builtResult.url) return;
-    await navigator.clipboard.writeText(builtResult.url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
   };
 
   const transformValue = (id, transform) => {
@@ -113,21 +72,11 @@ export default function UrlInspector() {
         gap: '16px',
       }}
     >
-      <div>
-        <h2
-          style={{
-            fontSize: '24px',
-            fontWeight: 600,
-            color: 'var(--foreground)',
-            margin: 0,
-          }}
-        >
-          URL Inspector
-        </h2>
-        <p style={{ color: 'var(--muted-foreground)', margin: '4px 0 0' }}>
-          Parse, edit, sort, encode, and rebuild URLs.
-        </p>
-      </div>
+      <ToolHeader
+        title="URL Inspector"
+        description="Parse, edit, sort, encode, and rebuild URLs."
+      />
+      <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
 
       <section
         style={{
@@ -194,14 +143,27 @@ export default function UrlInspector() {
           gap: '12px',
         }}
       >
-        <Field
+        <ToolInput
           label="Scheme"
           value={parts.scheme}
-          onChange={(value) => updatePart('scheme', value)}
+          onChange={(event) => updatePart('scheme', event.target.value)}
         />
-        <Field label="Host" value={parts.host} onChange={(value) => updatePart('host', value)} />
-        <Field label="Path" value={parts.path} onChange={(value) => updatePart('path', value)} />
-        <Field label="Hash" value={parts.hash} onChange={(value) => updatePart('hash', value)} />
+        <ToolInput
+          label="Host"
+          value={parts.host}
+          onChange={(event) => updatePart('host', event.target.value)}
+        />
+        <ToolInput
+          label="Path"
+          value={parts.path}
+          onChange={(event) => updatePart('path', event.target.value)}
+          className="font-mono"
+        />
+        <ToolInput
+          label="Hash"
+          value={parts.hash}
+          onChange={(event) => updatePart('hash', event.target.value)}
+        />
       </section>
 
       <section
@@ -329,10 +291,7 @@ export default function UrlInspector() {
           }}
         >
           <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Built URL</h3>
-          <Button variant="secondary" onClick={copyBuiltUrl} disabled={!builtResult.url}>
-            {copied ? <Check size={14} /> : <Copy size={14} />}
-            {copied ? 'Copied' : 'Copy'}
-          </Button>
+          <ToolCopyButton text={builtResult.url} disabled={!builtResult.url} variant="secondary" />
         </div>
         <pre
           style={{

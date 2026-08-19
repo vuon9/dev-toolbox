@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Regex, Copy, Info } from 'lucide-react';
+import { Regex, Copy, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { ToolHeader } from '../components/ToolUI';
+import { ToolLayout } from '../components/layout';
 
 // Escape HTML special characters
 const escapeHtml = (text) => {
@@ -260,24 +262,6 @@ const generateHighlightedHtml = (text, regex, flags) => {
     return escapeHtml(text);
   }
 };
-
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px' }}>{description}</p>
-    </div>
-  );
-}
 
 // Live Highlighted Editor Component
 function LiveHighlightedEditor({ text, setText, regex, flags, label, indicator, indicatorColor }) {
@@ -626,16 +610,7 @@ function QuickReferencePanel() {
             transition: 'transform 0.15s ease',
           }}
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+          <ChevronRight size={16} />
         </span>
         Quick Reference
       </button>
@@ -1037,21 +1012,14 @@ function FlagsDropdown({ flags, setFlags }) {
         >
           {displayFlags}
         </span>
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
+        <ChevronDown
+          size={12}
           style={{
             color: 'var(--muted-foreground)',
             transition: 'transform 0.15s ease',
             transform: isOpen ? 'rotate(180deg)' : 'none',
           }}
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+        />
       </button>
 
       {isOpen && (
@@ -1137,16 +1105,7 @@ function FlagsDropdown({ flags, setFlags }) {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
                   {isActive && (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="var(--success)"
-                      strokeWidth="3"
-                    >
-                      <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                    <Check size={16} strokeWidth={3} style={{ color: 'var(--success)' }} />
                   )}
                 </div>
               </button>
@@ -1349,35 +1308,25 @@ export default function RegExpTester() {
         </div>
       )}
 
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '16px',
-            flex: 1,
-            minHeight: 0,
-          }}
-        >
-          <LiveHighlightedEditor
-            label="Test String"
-            text={text}
-            setText={setText}
-            regex={regex}
-            flags={flags}
-            indicator="Source"
-            indicatorColor="green"
-          />
+      <ToolLayout toolKey="regexp" persist togglePosition="top-right">
+        <LiveHighlightedEditor
+          label="Test String"
+          text={text}
+          setText={setText}
+          regex={regex}
+          flags={flags}
+          indicator="Source"
+          indicatorColor="green"
+        />
 
-          <ResultPane
-            label="Result"
-            matches={matches}
-            error={error}
-            indicator={`${matches.length} matches`}
-            indicatorColor="blue"
-          />
-        </div>
-      </div>
+        <ResultPane
+          label="Result"
+          matches={matches}
+          error={error}
+          indicator={`${matches.length} matches`}
+          indicatorColor="blue"
+        />
+      </ToolLayout>
     </div>
   );
 }

@@ -1,162 +1,16 @@
 import React, { useState, useCallback } from 'react';
-import { Undo2, Copy, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Undo2, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { textUtilitiesAPI } from './api/textUtilitiesAPI';
-import CodeEditor from '../../components/inputs/CodeEditor';
-import HighlightedCode from '../../components/inputs/HighlightedCode';
-import EditorToggle from '../../components/inputs/EditorToggle';
+import { ToolHeader } from '../../components/ToolUI';
+import { ToolEditorPane, EditorToggle } from '../../components/inputs';
+import { ToolLayout } from '../../components/layout';
 
 const ESCAPE_METHODS = ['String Literal', 'Unicode/Hex'];
 
 const TOOL_TITLE = 'Text Utilities';
 const TOOL_DESCRIPTION = 'Sort, deduplicate, case-convert, escape, and inspect text.';
 const TOOL_KEY = 'text-utilities';
-
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px' }}>{description}</p>
-    </div>
-  );
-}
-
-function ToolPane({
-  label,
-  value,
-  onChange,
-  readOnly,
-  placeholder,
-  indicator,
-  indicatorColor,
-  highlightOn,
-  language = 'plaintext',
-  dataTestId,
-}) {
-  const handleCopy = () => {
-    if (value) navigator.clipboard.writeText(value);
-  };
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <label
-            style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              color: 'var(--muted-foreground)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-            }}
-          >
-            {label}
-          </label>
-          {indicator && (
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                fontSize: '10px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                backgroundColor:
-                  indicatorColor === 'green'
-                    ? 'rgba(34, 197, 94, 0.15)'
-                    : 'rgba(59, 130, 246, 0.15)',
-                color: indicatorColor === 'green' ? '#22c55e' : '#3b82f6',
-              }}
-            >
-              {indicator}
-            </span>
-          )}
-        </div>
-        <button
-          onClick={handleCopy}
-          disabled={!value}
-          title="Copy to clipboard"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '28px',
-            height: '28px',
-            padding: '6px',
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderRadius: '4px',
-            color: value ? 'var(--muted-foreground)' : 'var(--border)',
-            cursor: value ? 'pointer' : 'not-allowed',
-          }}
-        >
-          <Copy style={{ width: '16px', height: '16px' }} />
-        </button>
-      </div>
-      {readOnly ? (
-        highlightOn ? (
-          <HighlightedCode
-            code={value}
-            language={language}
-            copyable={false}
-            dataTestId={dataTestId}
-            ariaLabel={label}
-          />
-        ) : (
-          <textarea
-            data-testid={dataTestId ? `${dataTestId}-content` : undefined}
-            aria-label={label}
-            value={value}
-            readOnly
-            placeholder={placeholder}
-            style={{
-              flex: 1,
-              width: '100%',
-              padding: '12px',
-              fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-              fontSize: '14px',
-              lineHeight: 1.6,
-              backgroundColor: 'var(--background)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              color: 'var(--foreground)',
-              resize: 'none',
-              outline: 'none',
-            }}
-          />
-        )
-      ) : (
-        <CodeEditor
-          value={value}
-          onChange={(val) => onChange?.(val)}
-          language={language}
-          highlight={highlightOn}
-          placeholder={placeholder}
-          dataTestId={dataTestId}
-          ariaLabel={label}
-        />
-      )}
-    </div>
-  );
-}
 
 function StatBadge({ label, value }) {
   return (
@@ -347,15 +201,166 @@ export default function TextUtilities() {
 
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '16px',
-          flex: 1,
-          minHeight: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          flexWrap: 'wrap',
+          flexShrink: 0,
+          marginBottom: '16px',
         }}
       >
-        <ToolPane
-          label="Input Text"
+        <StatBadge label="Chars" value={stats.chars.toLocaleString()} />
+        <StatBadge label="Words" value={stats.words.toLocaleString()} />
+        <StatBadge label="Lines" value={stats.lines.toLocaleString()} />
+        <StatBadge label="Bytes" value={stats.bytes.toLocaleString()} />
+        <StatBadge label="Sentences" value={stats.sentences.toLocaleString()} />
+      </div>
+
+      <div
+        style={{
+          padding: '8px 12px',
+          borderRadius: '8px',
+          backgroundColor: 'var(--card)',
+          border: '1px solid var(--border)',
+          flexShrink: 0,
+          marginBottom: '16px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: 'var(--muted-foreground)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
+            Case Conversion
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {cases.map((c) => (
+            <Button key={c.id} size="sm" onClick={() => handleConvertCase(c.id)}>
+              {c.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <div
+        style={{
+          padding: '8px 12px',
+          borderRadius: '8px',
+          backgroundColor: 'var(--card)',
+          border: '1px solid var(--border)',
+          flexShrink: 0,
+          marginBottom: '16px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: 'var(--muted-foreground)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
+            Escape / Unescape
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <select
+            value={escapeMethod}
+            onChange={(e) => setEscapeMethod(e.target.value)}
+            style={{
+              height: '32px',
+              padding: '0 8px',
+              fontSize: '12px',
+              borderRadius: '6px',
+              backgroundColor: 'var(--background)',
+              border: '1px solid var(--border)',
+              color: 'var(--foreground)',
+              outline: 'none',
+            }}
+          >
+            {ESCAPE_METHODS.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              height: '32px',
+              borderRadius: '6px',
+              backgroundColor: 'var(--background)',
+              border: '1px solid var(--border)',
+              padding: '3px',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setEscapeMode('Escape')}
+              style={{
+                padding: '3px 10px',
+                fontSize: '11px',
+                fontWeight: 500,
+                borderRadius: '4px',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: escapeMode === 'Escape' ? 'var(--border)' : 'transparent',
+                color: escapeMode === 'Escape' ? 'var(--foreground)' : 'var(--muted-foreground)',
+              }}
+            >
+              Escape
+            </button>
+            <button
+              type="button"
+              onClick={() => setEscapeMode('Unescape')}
+              style={{
+                padding: '3px 10px',
+                fontSize: '11px',
+                fontWeight: 500,
+                borderRadius: '4px',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: escapeMode === 'Unescape' ? 'var(--border)' : 'transparent',
+                color: escapeMode === 'Unescape' ? 'var(--foreground)' : 'var(--muted-foreground)',
+              }}
+            >
+              Unescape
+            </button>
+          </div>
+          <Button size="sm" onClick={handleEscape}>
+            Run
+          </Button>
+          {escapeResult && (
+            <span
+              style={{
+                fontSize: '12px',
+                fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
+                color: '#22c55e',
+                wordBreak: 'break-all',
+                maxWidth: '300px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {escapeResult}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <ToolLayout toolKey={TOOL_KEY} persist togglePosition="top-right">
+        <ToolEditorPane
+          label="Input"
           value={input}
           onChange={handleInputChange}
           placeholder="Paste or type text here..."
@@ -363,180 +368,20 @@ export default function TextUtilities() {
           indicatorColor="green"
           highlightOn={highlightOn}
           dataTestId="text-utilities-input"
+          ariaLabel="Input"
         />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflow: 'auto' }}>
-          <div style={{ flex: '0 0 40%', display: 'flex', flexDirection: 'column' }}>
-            <ToolPane
-              label="Result"
-              value={output}
-              readOnly
-              placeholder="Transformed text will appear here..."
-              indicator="Output"
-              indicatorColor="blue"
-              highlightOn={highlightOn}
-              dataTestId="text-utilities-output"
-            />
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              flexWrap: 'wrap',
-              flexShrink: 0,
-            }}
-          >
-            <StatBadge label="Chars" value={stats.chars.toLocaleString()} />
-            <StatBadge label="Words" value={stats.words.toLocaleString()} />
-            <StatBadge label="Lines" value={stats.lines.toLocaleString()} />
-            <StatBadge label="Bytes" value={stats.bytes.toLocaleString()} />
-            <StatBadge label="Sentences" value={stats.sentences.toLocaleString()} />
-          </div>
-
-          <div
-            style={{
-              padding: '8px 12px',
-              borderRadius: '8px',
-              backgroundColor: 'var(--card)',
-              border: '1px solid var(--border)',
-              flexShrink: 0,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  color: 'var(--muted-foreground)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                Case Conversion
-              </span>
-            </div>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {cases.map((c) => (
-                <Button key={c.id} size="sm" onClick={() => handleConvertCase(c.id)}>
-                  {c.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <div
-            style={{
-              padding: '8px 12px',
-              borderRadius: '8px',
-              backgroundColor: 'var(--card)',
-              border: '1px solid var(--border)',
-              flexShrink: 0,
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  color: 'var(--muted-foreground)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                Escape / Unescape
-              </span>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <select
-                value={escapeMethod}
-                onChange={(e) => setEscapeMethod(e.target.value)}
-                style={{
-                  height: '32px',
-                  padding: '0 8px',
-                  fontSize: '12px',
-                  borderRadius: '6px',
-                  backgroundColor: 'var(--background)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--foreground)',
-                  outline: 'none',
-                }}
-              >
-                {ESCAPE_METHODS.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  height: '32px',
-                  borderRadius: '6px',
-                  backgroundColor: 'var(--background)',
-                  border: '1px solid var(--border)',
-                  padding: '3px',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setEscapeMode('Escape')}
-                  style={{
-                    padding: '3px 10px',
-                    fontSize: '11px',
-                    fontWeight: 500,
-                    borderRadius: '4px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: escapeMode === 'Escape' ? 'var(--border)' : 'transparent',
-                    color:
-                      escapeMode === 'Escape' ? 'var(--foreground)' : 'var(--muted-foreground)',
-                  }}
-                >
-                  Escape
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEscapeMode('Unescape')}
-                  style={{
-                    padding: '3px 10px',
-                    fontSize: '11px',
-                    fontWeight: 500,
-                    borderRadius: '4px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: escapeMode === 'Unescape' ? 'var(--border)' : 'transparent',
-                    color:
-                      escapeMode === 'Unescape' ? 'var(--foreground)' : 'var(--muted-foreground)',
-                  }}
-                >
-                  Unescape
-                </button>
-              </div>
-              <Button size="sm" onClick={handleEscape}>
-                Run
-              </Button>
-              {escapeResult && (
-                <span
-                  style={{
-                    fontSize: '12px',
-                    fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-                    color: '#22c55e',
-                    wordBreak: 'break-all',
-                    maxWidth: '300px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {escapeResult}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+        <ToolEditorPane
+          label="Output"
+          value={output}
+          readOnly
+          placeholder="Transformed text will appear here..."
+          indicator="Result"
+          indicatorColor="blue"
+          highlightOn={highlightOn}
+          dataTestId="text-utilities-output"
+          ariaLabel="Output"
+        />
+      </ToolLayout>
     </div>
   );
 }

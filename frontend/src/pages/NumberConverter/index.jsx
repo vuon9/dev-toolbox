@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Copy, Check, Dice5 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { ToolHeader } from '../../components/ToolUI';
 import { numberConverterAPI } from './api/numberConverterAPI';
 
 function debounce(func, wait) {
@@ -508,6 +509,9 @@ function Column3Context({ result }) {
   );
 }
 
+const TOOL_TITLE = 'Number Converter';
+const TOOL_DESCRIPTION = 'Convert and interpret numbers in different contexts';
+
 export default function NumberConverter() {
   const [input, setInput] = useState('255');
   const [base] = useState('decimal');
@@ -574,22 +578,8 @@ export default function NumberConverter() {
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: '12px' }}>
-        <h2
-          style={{
-            fontSize: '24px',
-            fontWeight: 600,
-            color: 'var(--foreground)',
-            margin: '0 0 4px 0',
-          }}
-        >
-          Number Converter
-        </h2>
-        <p style={{ color: 'var(--muted-foreground)', fontSize: '14px', margin: 0 }}>
-          Convert and interpret numbers in different contexts
-        </p>
-        <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '12px 0' }} />
-      </div>
+      <ToolHeader title={TOOL_TITLE} description={TOOL_DESCRIPTION} />
+      <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
 
       {/* Input row */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>

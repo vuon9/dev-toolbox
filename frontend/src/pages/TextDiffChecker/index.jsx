@@ -2,145 +2,9 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Button } from '../../components/ui/Button';
 import { Undo2, Split, Rows, Eye, Edit3 } from 'lucide-react';
 import { computeDiffResult } from './diffUtils';
-import CodeEditor from '../../components/inputs/CodeEditor';
-
-// Inline-styled components
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px' }}>{description}</p>
-    </div>
-  );
-}
-
-function ToolTextArea({ label, value, onChange, placeholder, indicator, indicatorColor }) {
-  const handleCopy = () => {
-    if (value) {
-      navigator.clipboard.writeText(value);
-    }
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <label
-            style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              color: 'var(--muted-foreground)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-            }}
-          >
-            {label}
-          </label>
-          {indicator && (
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                fontSize: '10px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                backgroundColor:
-                  indicatorColor === 'green'
-                    ? 'rgba(34, 197, 94, 0.15)'
-                    : 'rgba(59, 130, 246, 0.15)',
-                color: indicatorColor === 'green' ? 'var(--success)' : 'var(--primary)',
-              }}
-            >
-              {indicator}
-            </span>
-          )}
-        </div>
-        <button
-          onClick={handleCopy}
-          title="Copy to clipboard"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '28px',
-            height: '28px',
-            padding: '6px',
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderRadius: '4px',
-            color: value ? 'var(--muted-foreground)' : 'var(--border)',
-            cursor: value ? 'pointer' : 'not-allowed',
-            transition: 'all 0.15s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (value) {
-              e.currentTarget.style.backgroundColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--foreground)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = value ? 'var(--muted-foreground)' : 'var(--border)';
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-        </button>
-      </div>
-      <textarea
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        style={{
-          flex: 1,
-          width: '100%',
-          minHeight: '400px',
-          padding: '12px',
-          fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-          fontSize: '14px',
-          lineHeight: 1.6,
-          backgroundColor: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          color: 'var(--foreground)',
-          resize: 'none',
-          outline: 'none',
-        }}
-      />
-    </div>
-  );
-}
+import { ToolHeader } from '../../components/ToolUI';
+import { ToolEditorPane, ToolCopyButton } from '../../components/inputs';
+import { ToolLayout } from '../../components/layout';
 
 function ToggleGroup({ options, value, onChange, size = 'default' }) {
   return (
@@ -509,6 +373,21 @@ export default function TextDiffChecker() {
     return { leftLines: split.left, rightLines: split.right, unifiedLines: unified };
   }, [diffResult]);
 
+  // Plain-text representation of the diff (unified-style +/- prefixes) for copying
+  const diffText = useMemo(() => {
+    if (!diffResult) return '';
+    return diffResult
+      .map((part) => {
+        const prefix = part.added ? '+' : part.removed ? '-' : ' ';
+        return part.value
+          .split('\n')
+          .filter((line, idx, arr) => idx < arr.length - 1 || line !== '')
+          .map((line) => prefix + line)
+          .join('\n');
+      })
+      .join('\n');
+  }, [diffResult]);
+
   const diffModeOptions = [
     { value: 'lines', label: 'Lines' },
     { value: 'words', label: 'Words' },
@@ -577,104 +456,48 @@ export default function TextDiffChecker() {
       {/* Content */}
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         {mode === 'edit' ? (
-          /* Edit mode */
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-              flex: 1,
-              minHeight: 0,
-            }}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-              <div
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-              >
-                <label
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    color: 'var(--muted-foreground)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  Original Text
-                </label>
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                    color: '#22c55e',
-                  }}
-                >
-                  Base Version
-                </span>
-              </div>
-              <CodeEditor
-                value={original}
-                onChange={(val) => setOriginal(val)}
-                language="plaintext"
-                placeholder="Paste original version here..."
-                dataTestId="text-diff-original"
-                ariaLabel="Original Text"
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-              <div
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-              >
-                <label
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    color: 'var(--muted-foreground)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  Modified Text
-                </label>
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-                    color: '#3b82f6',
-                  }}
-                >
-                  Comparison Target
-                </span>
-              </div>
-              <CodeEditor
-                value={modified}
-                onChange={(val) => setModified(val)}
-                language="plaintext"
-                placeholder="Paste modified version here..."
-                dataTestId="text-diff-modified"
-                ariaLabel="Modified Text"
-              />
-            </div>
-          </div>
+          /* Edit mode — 2-pane input split */
+          <ToolLayout toolKey="text-diff" persist togglePosition="top-right">
+            <ToolEditorPane
+              label="Original Text"
+              value={original}
+              onChange={(val) => setOriginal(val)}
+              placeholder="Paste original version here..."
+              indicator="Base Version"
+              indicatorColor="green"
+              dataTestId="text-diff-original"
+              ariaLabel="Original Text"
+            />
+            <ToolEditorPane
+              label="Modified Text"
+              value={modified}
+              onChange={(val) => setModified(val)}
+              placeholder="Paste modified version here..."
+              indicator="Comparison Target"
+              indicatorColor="blue"
+              dataTestId="text-diff-modified"
+              ariaLabel="Modified Text"
+            />
+          </ToolLayout>
         ) : (
           /* Diff mode */
-          <div style={{ flex: 1, minHeight: 0 }}>
+          <div
+            style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--muted-foreground)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                Diff Result
+              </span>
+              <ToolCopyButton text={diffText} />
+            </div>
             {viewMode === 'split' ? (
               <DiffSplitView leftLines={leftLines} rightLines={rightLines} />
             ) : (

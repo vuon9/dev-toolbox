@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FileText, Zap, Filter, Braces, Code2, Code } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import HighlightedCode from '../../components/inputs/HighlightedCode';
+import { ToolHeader } from '../../components/ToolUI';
+import { ToolEditorPane, EditorToggle } from '../../components/inputs';
+import { ToolLayout } from '../../components/layout';
 import { Format } from '../../generated';
+
+const TOOL_KEY = 'code-formatter';
 
 const languages = [
   { id: 'json', label: 'JSON', icon: Braces },
@@ -35,27 +39,6 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
-}
-
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px', fontSize: '14px' }}>
-        {description}
-      </p>
-      <hr style={{ marginTop: '16px', border: 'none', borderTop: '1px solid var(--border)' }} />
-    </div>
-  );
 }
 
 function LanguageSelect({ value, onChange }) {
@@ -145,119 +128,6 @@ function LanguageSelect({ value, onChange }) {
   );
 }
 
-function InputPane({ value, onChange, placeholder }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '6px',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '11px',
-            textTransform: 'uppercase',
-            color: 'var(--muted-foreground)',
-            fontWeight: 600,
-            letterSpacing: '0.05em',
-          }}
-        >
-          Input
-        </span>
-      </div>
-      <textarea
-        data-testid="code-formatter-input-content"
-        aria-label="Input"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        style={{
-          flex: 1,
-          backgroundColor: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          padding: '8px',
-          color: 'var(--foreground)',
-          fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-          fontSize: '13px',
-          lineHeight: 1.5,
-          resize: 'none',
-          outline: 'none',
-        }}
-      />
-    </div>
-  );
-}
-
-function OutputPane({ content, language, error, filterComponent }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '6px',
-        }}
-      >
-        <span
-          style={{
-            fontSize: '11px',
-            textTransform: 'uppercase',
-            color: 'var(--muted-foreground)',
-            fontWeight: 600,
-            letterSpacing: '0.05em',
-          }}
-        >
-          Formatted Output
-        </span>
-      </div>
-
-      <div
-        style={{
-          flex: 1,
-          backgroundColor: 'var(--card)',
-          border: error ? '1px solid #ef4444' : '1px solid var(--border)',
-          borderRadius: '8px',
-          overflow: 'auto',
-          marginBottom: '8px',
-        }}
-      >
-        {content && (
-          <HighlightedCode
-            code={content}
-            language={language}
-            showLineNumbers
-            dataTestId="code-formatter-output"
-            ariaLabel="Formatted Output"
-          />
-        )}
-      </div>
-
-      {filterComponent}
-
-      {error && !error.toLowerCase().includes('filter') && (
-        <div
-          style={{
-            padding: '8px 12px',
-            borderRadius: '6px',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            color: '#ef4444',
-            fontSize: '12px',
-            fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-          }}
-        >
-          {error}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function FilterBar({ value, onChange, placeholder, show, error }) {
   if (!show) return null;
 
@@ -316,6 +186,9 @@ function FilterBar({ value, onChange, placeholder, show, error }) {
 }
 
 export default function CodeFormatter() {
+  const [highlightOn, setHighlightOn] = useState(
+    () => localStorage.getItem(`${TOOL_KEY}-editor-highlight`) !== 'false'
+  );
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState(
@@ -390,6 +263,7 @@ export default function CodeFormatter() {
         title="Code Formatter"
         description="Clean up and prettify your markup. Supports JSON, XML, HTML, and CSS with intelligent formatting and filtering."
       />
+      <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
 
       {/* Top Controls */}
       <div
@@ -416,7 +290,7 @@ export default function CodeFormatter() {
           <LanguageSelect value={language} onChange={handleLanguageChange} />
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Button variant="secondary" onClick={handleLoadSample} disabled={isFormatting}>
             <FileText size={14} />
             Load Sample
@@ -425,32 +299,59 @@ export default function CodeFormatter() {
             <Zap size={14} />
             Minify
           </Button>
+          <EditorToggle enabled={highlightOn} onToggle={setHighlightOn} toolKey={TOOL_KEY} />
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: '16px' }}>
-        <InputPane
+      <ToolLayout toolKey={TOOL_KEY} persist togglePosition="top-right">
+        <ToolEditorPane
+          label="Input"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(val) => setInput(val)}
           placeholder={`Paste your ${language.toUpperCase()} here...`}
-        />
-
-        <OutputPane
-          content={output}
+          highlightOn={highlightOn}
           language={language}
-          error={error && !error.toLowerCase().includes('filter') ? error : ''}
-          filterComponent={
-            <FilterBar
-              value={filter}
-              onChange={setFilter}
-              placeholder={filterPlaceholders[language]}
-              show={language !== 'css'}
-              error={error && error.toLowerCase().includes('filter') ? error : ''}
-            />
-          }
+          dataTestId="code-formatter-input"
+          ariaLabel="Input"
         />
-      </div>
+        <div className="flex flex-col flex-1 min-h-0">
+          <ToolEditorPane
+            label="Output"
+            value={output}
+            readOnly
+            highlightOn={highlightOn}
+            showLineNumbers
+            language={language}
+            placeholder="Formatted output will appear here..."
+            dataTestId="code-formatter-output"
+            ariaLabel="Output"
+            error={!!error}
+          />
+          <FilterBar
+            value={filter}
+            onChange={setFilter}
+            placeholder={filterPlaceholders[language]}
+            show={language !== 'css'}
+            error={error && error.toLowerCase().includes('filter') ? error : ''}
+          />
+          {error && !error.toLowerCase().includes('filter') && (
+            <div
+              style={{
+                padding: '8px 12px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#ef4444',
+                fontSize: '12px',
+                fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
+              }}
+            >
+              {error}
+            </div>
+          )}
+        </div>
+      </ToolLayout>
     </div>
   );
 }

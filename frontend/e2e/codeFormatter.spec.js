@@ -16,7 +16,7 @@ test.describe('Code Formatter', () => {
   test('loads with JSON default and empty panes', async ({ page }) => {
     await expect(page.getByRole('button', { name: 'JSON' }).first()).toBeVisible();
     await expectEditorText(page, 'code-formatter-input', '');
-    await expect(page.getByTestId('code-formatter-output')).not.toBeVisible();
+    await expectEditorText(page, 'code-formatter-output', '');
     await expect(page.locator('input[placeholder=".users[].name"]')).toBeVisible();
   });
 
@@ -95,8 +95,15 @@ test.describe('Code Formatter', () => {
     await expect(page.getByTestId('code-formatter-output')).toBeVisible();
     await expect(page.getByTestId('code-formatter-output-content')).toHaveAttribute(
       'aria-label',
-      'Formatted Output'
+      'Output'
     );
+  });
+
+  test('output pane shows line numbers', async ({ page }) => {
+    await page.getByRole('button', { name: 'Load Sample' }).click();
+
+    await expectEditorNotEmpty(page, 'code-formatter-output');
+    await expect(page.getByTestId('code-formatter-output').locator('.cm-gutters')).toBeVisible();
   });
 
   test('filter input filters JSON output', async ({ page }) => {
@@ -111,5 +118,24 @@ test.describe('Code Formatter', () => {
     expect(text).toContain('Bob');
     expect(text).not.toContain('age');
     expect(text).not.toContain('count');
+  });
+
+  test('layout toggle switches between horizontal and vertical', async ({ page }) => {
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
+  });
+
+  test('copy button copies input to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+
+    await fillEditor(page, 'code-formatter-input', 'copy this input');
+
+    const copyButton = page.locator('button[title="Copy to clipboard"]').first();
+    await copyButton.click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toBe('copy this input');
   });
 });

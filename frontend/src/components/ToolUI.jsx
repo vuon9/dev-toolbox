@@ -1,7 +1,6 @@
 import React from 'react';
-import { Copy } from 'lucide-react';
-import { Button } from './ui/Button';
 import { ToolTextArea } from './inputs/ToolTextArea';
+import { ToolCopyButton } from './inputs';
 
 // Re-export new layout components
 export { ToolLayout, ToolLayoutToggle, ToolVerticalSplit } from './layout';
@@ -41,28 +40,13 @@ export function ToolPane({
   className,
   ...props
 }) {
-  const handleCopy = () => {
-    if (onCopy) {
-      onCopy();
-    } else if (value) {
-      navigator.clipboard.writeText(value);
-    }
-  };
-
   return (
     <div className={`flex flex-col h-full min-h-[50vh] ${className}`}>
       <div className="flex justify-between items-center min-h-[30px] mb-2">
         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
           {label}
         </label>
-        <Button
-          variant="secondary"
-          onClick={handleCopy}
-          disabled={!value}
-          style={{ padding: '4px' }}
-        >
-          <Copy style={{ width: '14px', height: '14px' }} />
-        </Button>
+        <ToolCopyButton text={value} onCopy={onCopy} />
       </div>
       <div className="flex-1 relative flex flex-col">
         <ToolTextArea
@@ -79,9 +63,11 @@ export function ToolPane({
 }
 
 export function ToolSplitPane({ children, columnCount = 2, className = '' }) {
-  const gridCols = columnCount === 1 ? 'grid-cols-1' : `grid-cols-${columnCount}`;
   return (
-    <div className={`grid ${gridCols} gap-4 flex-1 min-h-0 overflow-hidden ${className}`}>
+    <div
+      className={`grid gap-4 flex-1 min-h-0 overflow-hidden ${className}`}
+      style={{ gridTemplateColumns: columnCount === 1 ? '1fr' : `repeat(${columnCount}, 1fr)` }}
+    >
       {children}
     </div>
   );

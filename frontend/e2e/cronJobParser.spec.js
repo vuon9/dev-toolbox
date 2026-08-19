@@ -87,4 +87,24 @@ test.describe('Cron Job Parser', () => {
     const fieldBreakdown = page.locator('div').filter({ hasText: 'Field Breakdown' }).nth(1);
     await expect(fieldBreakdown.locator('text=0').first()).toBeVisible();
   });
+
+  test('copy button copies expression to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+
+    const copyButton = page.locator('button[title="Copy to clipboard"]').first();
+    await copyButton.click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toBe('*/15 * * * *');
+  });
+
+  test('copy button copies human-readable description to clipboard', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+
+    const copyButton = page.locator('button[title="Copy to clipboard"]').nth(1);
+    await copyButton.click();
+
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    expect(clipboardText).toBe('Every 15 minutes');
+  });
 });
