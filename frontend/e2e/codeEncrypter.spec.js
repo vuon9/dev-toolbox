@@ -210,4 +210,22 @@ test.describe('Code Encrypter', () => {
     await page.reload();
     await expect(page.locator('select').first()).toHaveValue('ChaCha20');
   });
+
+  test('gates unimplemented methods: 6 options disabled and labelled "(unavailable)"', async ({
+    page,
+  }) => {
+    const select = page.locator('select').first();
+
+    // Unimplemented methods are disabled and labelled
+    for (const m of ['Rabbit', 'RC4Drop', 'Blowfish', 'Twofish', 'Fernet', 'BIP38']) {
+      const option = select.locator(`option[value="${m}"]`);
+      await expect(option).toBeDisabled();
+      await expect(option).toHaveText(`${m} (unavailable)`);
+    }
+
+    // All 9 implemented methods remain selectable
+    for (const m of ['AES', 'AES-GCM', 'DES', 'Triple DES', 'RC4', 'ChaCha20', 'Salsa20', 'RSA', 'XOR']) {
+      await expect(select.locator(`option[value="${m}"]`)).toBeEnabled();
+    }
+  });
 });

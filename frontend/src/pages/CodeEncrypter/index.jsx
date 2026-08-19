@@ -23,6 +23,10 @@ const METHODS = [
   'XOR',
 ];
 
+// Methods not yet implemented in internal/converter/encryption.go — gated in the UI
+// (follow-up: implement Rabbit/RC4Drop/Blowfish/Twofish/Fernet/BIP38, then un-gate).
+const UNIMPLEMENTED = new Set(['Rabbit', 'RC4Drop', 'Blowfish', 'Twofish', 'Fernet', 'BIP38']);
+
 const NEED_KEY_AND_IV = new Set([
   'AES',
   'AES-GCM',
@@ -70,6 +74,12 @@ export default function CodeEncrypter() {
   const convert = useCallback(async () => {
     if (!input) {
       setOutput('');
+      setError('');
+      return;
+    }
+    // Stale saved state may hold a method that isn't implemented in the backend yet.
+    if (UNIMPLEMENTED.has(method)) {
+      setOutput('Not yet implemented');
       setError('');
       return;
     }
@@ -204,8 +214,9 @@ export default function CodeEncrypter() {
             }}
           >
             {METHODS.map((m) => (
-              <option key={m} value={m}>
+              <option key={m} value={m} disabled={UNIMPLEMENTED.has(m)}>
                 {m}
+                {UNIMPLEMENTED.has(m) ? ' (unavailable)' : ''}
               </option>
             ))}
           </select>
