@@ -53,6 +53,57 @@ describe('ToolEditorPane', () => {
     const content = await screen.findByTestId('t-out-content');
     expect(content).toHaveAttribute('aria-readonly', 'true');
     expect(content).toHaveTextContent('hi');
+    // Line numbers are opt-in (default false)
+    expect(content.parentElement.querySelector('.cm-gutters')).toBeNull();
+  });
+
+  it('forwards showLineNumbers to the HighlightedCode branch', async () => {
+    renderWithTheme(
+      <ToolEditorPane
+        label="Output"
+        value="line one\nline two"
+        readOnly
+        highlightOn
+        showLineNumbers
+        language="json"
+        ariaLabel="Output"
+        dataTestId="t-out"
+      />
+    );
+    const content = await screen.findByTestId('t-out-content');
+    expect(content.parentElement.querySelector('.cm-gutters')).not.toBeNull();
+  });
+
+  it('applies the error border in the highlighted read-only branch', async () => {
+    renderWithTheme(
+      <ToolEditorPane
+        label="Output"
+        value="hi"
+        readOnly
+        highlightOn
+        language="json"
+        ariaLabel="Output"
+        dataTestId="t-out"
+        error
+      />
+    );
+    await screen.findByTestId('t-out-content');
+    expect(screen.getByTestId('t-out-pane').style.borderColor).toBe('rgb(239, 68, 68)');
+  });
+
+  it('applies the error border in the plain read-only branch', () => {
+    render(
+      <ToolEditorPane
+        label="Output"
+        value="hi"
+        readOnly
+        ariaLabel="Output"
+        dataTestId="t-out"
+        error
+      />
+    );
+    expect(screen.getByTestId('t-out-pane').style.borderColor).toBe('rgb(239, 68, 68)');
+    expect(screen.getByLabelText('Output').style.borderColor).toBe('rgb(239, 68, 68)');
   });
 
   it('renders a plain textarea when readOnly and not highlightOn', () => {

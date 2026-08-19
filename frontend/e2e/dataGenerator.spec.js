@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { readEditorText, expectEditorNotEmpty, expectEditorText } from './helpers/editor';
+import {
+  readEditorText,
+  expectEditorNotEmpty,
+  expectEditorContains,
+  expectEditorText,
+} from './helpers/editor';
 
 test.describe('Data Generator', () => {
   test.beforeEach(async ({ page }) => {
@@ -39,6 +44,29 @@ test.describe('Data Generator', () => {
     const parsed = JSON.parse(text);
     expect(Array.isArray(parsed)).toBe(true);
     expect(parsed.length).toBe(10);
+  });
+
+  test('successful generate clears a previous error', async ({ page }) => {
+    const fieldName = page.locator('input[placeholder="Field name"]').first();
+    const outputPane = page.getByTestId('data-generator-output-pane');
+
+    // Trigger an error: a field name containing "{{" makes the built template
+    // invalid for the Go template engine.
+    await fieldName.fill('{{bad');
+    await page.getByRole('button', { name: 'Generate' }).click();
+
+    await expectEditorContains(page, 'data-generator-output', /Error/i);
+    await expect(outputPane).toHaveCSS('border-top-width', '1px');
+
+    // A subsequent successful generate must clear the error state entirely.
+    await fieldName.fill('id');
+    await page.getByRole('button', { name: 'Generate' }).click();
+
+    await expectEditorNotEmpty(page, 'data-generator-output');
+    const text = await readEditorText(page, 'data-generator-output');
+    expect(text).not.toMatch(/^Error/);
+    expect(JSON.parse(text).length).toBe(10);
+    await expect(outputPane).toHaveCSS('border-top-width', '0px');
   });
 
   test('format selection changes output format', async ({ page }) => {

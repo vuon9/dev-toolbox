@@ -19,6 +19,7 @@ export function ToolEditorPane({
   indicatorColor = 'blue',
   error = false,
   highlightOn = false,
+  showLineNumbers = false,
   language = 'plaintext',
   dataTestId,
   ariaLabel,
@@ -45,13 +46,18 @@ export function ToolEditorPane({
         </div>
         <ToolCopyButton text={value} />
       </div>
-      <div className="flex-1 relative flex flex-col">
+      <div
+        className="flex-1 relative flex flex-col"
+        data-testid={dataTestId ? `${dataTestId}-pane` : undefined}
+        style={{ border: error ? '1px solid #ef4444' : undefined }}
+      >
         {readOnly ? (
           highlightOn ? (
             <HighlightedCode
               code={value}
               language={language}
               copyable={false}
+              showLineNumbers={showLineNumbers}
               dataTestId={dataTestId}
               ariaLabel={ariaLabel || label}
             />

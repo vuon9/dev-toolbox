@@ -651,6 +651,7 @@ export default function DataGenerator() {
 
   const handleGenerate = async () => {
     setIsGenerating(true);
+    setError('');
     try {
       const template = buildTemplate(schema);
       const res = await Generate({ format, count, template });

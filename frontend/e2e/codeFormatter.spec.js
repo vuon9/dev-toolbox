@@ -99,6 +99,13 @@ test.describe('Code Formatter', () => {
     );
   });
 
+  test('output pane shows line numbers', async ({ page }) => {
+    await page.getByRole('button', { name: 'Load Sample' }).click();
+
+    await expectEditorNotEmpty(page, 'code-formatter-output');
+    await expect(page.getByTestId('code-formatter-output').locator('.cm-gutters')).toBeVisible();
+  });
+
   test('filter input filters JSON output', async ({ page }) => {
     await page.getByRole('button', { name: 'Load Sample' }).click();
 

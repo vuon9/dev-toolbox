@@ -321,6 +321,7 @@ export default function CodeFormatter() {
             value={output}
             readOnly
             highlightOn={highlightOn}
+            showLineNumbers
             language={language}
             placeholder="Formatted output will appear here..."
             dataTestId="code-formatter-output"
