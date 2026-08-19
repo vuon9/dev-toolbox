@@ -42,6 +42,7 @@ export function ToolCopyButton({
       size={size}
       onClick={handleCopy}
       disabled={isDisabled}
+      title="Copy to clipboard"
       className={cn('h-7 gap-1.5 text-[10px] font-bold uppercase tracking-wider', className)}
     >
       {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
