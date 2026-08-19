@@ -494,7 +494,7 @@ function GroupedSelectDropdown({ label, value, onChange, groups, width = '200px'
               <div
                 style={{
                   padding: '6px 10px',
-                  fontSize: '10px',
+                  fontSize: '11px',
                   fontWeight: 600,
                   color: 'var(--border)',
                   textTransform: 'uppercase',

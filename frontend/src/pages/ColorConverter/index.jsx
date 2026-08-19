@@ -38,10 +38,10 @@ const ColorSwatch = ({ color, onClick, size = 40, showHex = true }) => (
         height: size,
         backgroundColor: color,
         borderRadius: '6px',
-        border: '2px solid var(--border)',
+        border: '1px solid var(--border)',
       }}
     />
-    {showHex && <CopyableHex hex={color} showColorPreview={false} style={{ fontSize: '10px' }} />}
+    {showHex && <CopyableHex hex={color} showColorPreview={false} style={{ fontSize: '11px' }} />}
   </div>
 );
 
@@ -446,7 +446,7 @@ HSB: ${hsb.h}, ${hsb.s}%, ${hsb.b}%`;
                         style={{
                           textAlign: 'left',
                           padding: '6px 8px',
-                          fontSize: '10px',
+                          fontSize: '11px',
                           fontWeight: 600,
                           color: 'var(--muted-foreground)',
                           textTransform: 'uppercase',
@@ -460,7 +460,7 @@ HSB: ${hsb.h}, ${hsb.s}%, ${hsb.b}%`;
                         style={{
                           textAlign: 'left',
                           padding: '6px 8px',
-                          fontSize: '10px',
+                          fontSize: '11px',
                           fontWeight: 600,
                           color: 'var(--muted-foreground)',
                           textTransform: 'uppercase',
@@ -473,7 +473,7 @@ HSB: ${hsb.h}, ${hsb.s}%, ${hsb.b}%`;
                         style={{
                           textAlign: 'center',
                           padding: '6px 8px',
-                          fontSize: '10px',
+                          fontSize: '11px',
                           fontWeight: 600,
                           color: 'var(--muted-foreground)',
                           textTransform: 'uppercase',
@@ -933,7 +933,7 @@ HSB: ${hsb.h}, ${hsb.s}%, ${hsb.b}%`;
                             backgroundColor: 'var(--border)',
                             border: '1px solid var(--border)',
                             color: 'var(--muted-foreground)',
-                            fontSize: '10px',
+                            fontSize: '11px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',

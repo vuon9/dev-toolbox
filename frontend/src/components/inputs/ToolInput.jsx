@@ -16,7 +16,7 @@ export function ToolInput({
   return (
     <div className={cn('grid w-full items-center gap-1.5', containerClassName)}>
       {label && (
-        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 ml-1">
+        <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70 ml-1">
           {label}
         </Label>
       )}

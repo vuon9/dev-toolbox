@@ -332,7 +332,7 @@ function LiveHighlightedEditor({ text, setText, regex, flags, label, indicator, 
                 alignItems: 'center',
                 padding: '2px 8px',
                 borderRadius: '4px',
-                fontSize: '10px',
+                fontSize: '11px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -697,7 +697,7 @@ function QuickReferencePanel() {
                     cursor: 'pointer',
                   }}
                 >
-                  <span style={{ fontSize: '10px' }}>{cat.icon}</span>
+                  <span style={{ fontSize: '11px' }}>{cat.icon}</span>
                   <span>{cat.label}</span>
                 </button>
               ))}
@@ -898,7 +898,7 @@ function ResultPane({ label, matches, error, indicator, indicatorColor }) {
                 alignItems: 'center',
                 padding: '2px 8px',
                 borderRadius: '4px',
-                fontSize: '10px',
+                fontSize: '11px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',

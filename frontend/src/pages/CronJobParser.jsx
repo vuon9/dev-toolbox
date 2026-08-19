@@ -427,7 +427,7 @@ export default function CronJobParser() {
                       style={{
                         padding: '8px 12px',
                         textAlign: 'left',
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         color: 'var(--muted-foreground)',
                         textTransform: 'uppercase',
@@ -440,7 +440,7 @@ export default function CronJobParser() {
                       style={{
                         padding: '8px 12px',
                         textAlign: 'left',
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         color: 'var(--muted-foreground)',
                         textTransform: 'uppercase',
@@ -453,7 +453,7 @@ export default function CronJobParser() {
                       style={{
                         padding: '8px 12px',
                         textAlign: 'left',
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         color: 'var(--muted-foreground)',
                         textTransform: 'uppercase',
@@ -466,7 +466,7 @@ export default function CronJobParser() {
                       style={{
                         padding: '8px 12px',
                         textAlign: 'left',
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         color: 'var(--muted-foreground)',
                         textTransform: 'uppercase',
@@ -572,7 +572,7 @@ export default function CronJobParser() {
                       style={{
                         padding: '8px 12px',
                         textAlign: 'left',
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         color: 'var(--muted-foreground)',
                         textTransform: 'uppercase',
@@ -584,7 +584,7 @@ export default function CronJobParser() {
                       style={{
                         padding: '8px 12px',
                         textAlign: 'left',
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         color: 'var(--muted-foreground)',
                         textTransform: 'uppercase',
@@ -597,7 +597,7 @@ export default function CronJobParser() {
                       style={{
                         padding: '8px 12px',
                         textAlign: 'left',
-                        fontSize: '10px',
+                        fontSize: '11px',
                         fontWeight: 600,
                         color: 'var(--muted-foreground)',
                         textTransform: 'uppercase',
@@ -650,7 +650,7 @@ export default function CronJobParser() {
                       {prevExecutions[1] && (
                         <div
                           style={{
-                            fontSize: '10px',
+                            fontSize: '11px',
                             color: 'var(--muted-foreground)',
                             marginTop: '4px',
                           }}
@@ -715,7 +715,7 @@ export default function CronJobParser() {
                       <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--primary)' }}>
                         Current
                       </div>
-                      <div style={{ fontSize: '10px', color: 'var(--success)', marginTop: '4px' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--success)', marginTop: '4px' }}>
                         Next in
                       </div>
                     </td>
@@ -777,7 +777,7 @@ export default function CronJobParser() {
                       {nextExecutions[1] && (
                         <div
                           style={{
-                            fontSize: '10px',
+                            fontSize: '11px',
                             color: 'var(--muted-foreground)',
                             marginTop: '4px',
                           }}

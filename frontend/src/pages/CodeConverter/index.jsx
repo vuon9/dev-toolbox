@@ -89,7 +89,7 @@ function ToolPane({
                 gap: '4px',
                 padding: '2px 8px',
                 borderRadius: '4px',
-                fontSize: '10px',
+                fontSize: '11px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',

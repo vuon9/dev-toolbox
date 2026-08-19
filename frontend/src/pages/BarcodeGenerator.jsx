@@ -375,7 +375,7 @@ export default function BarcodeGenerator() {
                 backgroundColor: 'var(--background)',
                 padding: '24px',
                 borderRadius: '12px',
-                border: '4px solid rgba(59, 130, 246, 0.2)',
+                border: '1px solid var(--border)',
               }}
             >
               {output ? (

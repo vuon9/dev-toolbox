@@ -405,7 +405,7 @@ export default function DateTimeConverter() {
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--foreground)' }}>
             {info.city}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--muted-foreground)' }}>{info.timezone}</div>
+          <div style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{info.timezone}</div>
         </div>
 
         {/* Time */}
@@ -424,7 +424,7 @@ export default function DateTimeConverter() {
         {/* Offset */}
         <div
           style={{
-            fontSize: '10px',
+            fontSize: '11px',
             color: 'var(--muted-foreground)',
             padding: '2px 6px',
             backgroundColor: 'var(--card)',

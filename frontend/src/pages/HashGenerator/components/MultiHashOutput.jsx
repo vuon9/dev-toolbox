@@ -67,7 +67,7 @@ export default function MultiHashOutput({ value, error }) {
               onClick={() => handleCopy(val, idx)}
               style={{
                 padding: '4px 8px',
-                fontSize: '10px',
+                fontSize: '11px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
