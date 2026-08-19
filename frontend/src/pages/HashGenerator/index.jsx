@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '../../components/ui/Button';
 import { hashGeneratorAPI } from './api/hashGeneratorAPI';
 import MultiHashOutput from './components/MultiHashOutput';
 import { ToolHeader } from '../../components/ToolUI';
