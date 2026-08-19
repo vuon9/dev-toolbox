@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Copy, Check, Clock, Globe, Star, Trash2, ArrowRight, GripVertical } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { ToolHeader } from '../../components/ToolUI';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import {
   DndContext,
@@ -87,6 +88,9 @@ const GetAvailableTimezones =
       ],
     };
   });
+
+const TOOL_TITLE = 'DateTime Converter';
+const TOOL_DESCRIPTION = 'Convert between Unix timestamps, ISO dates, and timezones';
 
 export default function DateTimeConverter() {
   const [input, setInput] = useState('1710508200');
@@ -522,22 +526,8 @@ export default function DateTimeConverter() {
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: '20px' }}>
-        <h2
-          style={{
-            fontSize: '24px',
-            fontWeight: 600,
-            letterSpacing: '-0.025em',
-            color: 'var(--foreground)',
-          }}
-        >
-          DateTime Converter
-        </h2>
-        <p style={{ color: 'var(--muted-foreground)', marginTop: '4px', fontSize: '14px' }}>
-          Convert between Unix timestamps, ISO dates, and timezones
-        </p>
-        <div style={{ marginTop: '16px', borderBottom: '1px solid var(--border)' }} />
-      </div>
+      <ToolHeader title={TOOL_TITLE} description={TOOL_DESCRIPTION} />
+      <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
 
       {/* Main 2-column layout */}
       <div
