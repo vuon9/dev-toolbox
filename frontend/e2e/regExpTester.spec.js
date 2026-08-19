@@ -101,4 +101,11 @@ test.describe('RegExp Tester', () => {
     await expect(page.getByText('Match 1')).toBeVisible();
     await expect(page.locator('text=Match 2')).not.toBeVisible();
   });
+
+  test('layout toggle switches between horizontal and vertical', async ({ page }) => {
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
+  });
 });
