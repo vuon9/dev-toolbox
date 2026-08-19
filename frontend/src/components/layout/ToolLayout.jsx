@@ -70,6 +70,7 @@ export default function ToolLayout({
   return (
     <div
       className="tool-layout"
+      data-layout-direction={layout.direction}
       style={{
         position: 'relative',
         flex: 1,
