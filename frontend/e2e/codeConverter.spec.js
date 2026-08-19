@@ -117,22 +117,10 @@ test.describe('Code Converter', () => {
   });
 
   test('layout toggle switches between horizontal and vertical', async ({ page }) => {
-    const splitPane = page.locator('div[style*="grid-template-columns"]');
-
-    // Default is horizontal (2 columns)
-    const initialStyle = await splitPane.getAttribute('style');
-    expect(initialStyle).toContain('1fr 1fr');
-
-    // Find the layout toggle button (second button with SVG in main content, not modal)
-    const mainContent = page.locator('div').filter({ hasText: 'Code Converter' }).first();
-    const toggleButton = mainContent
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .nth(1);
-    await toggleButton.click();
-
-    // After toggle should be vertical (1 column)
-    await expect(splitPane).toHaveAttribute('style', /1fr;/);
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
   });
 
   test('copy button copies output to clipboard', async ({ page, context }) => {
