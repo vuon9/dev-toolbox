@@ -6,3 +6,4 @@ export * from './ToolCopyButton';
 export { default as CodeEditor } from './CodeEditor';
 export { default as HighlightedCode } from './HighlightedCode';
 export { default as EditorToggle } from './EditorToggle';
+export { default as ToolEditorPane } from './ToolEditorPane';
