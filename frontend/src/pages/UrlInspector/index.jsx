@@ -144,26 +144,22 @@ export default function UrlInspector() {
           label="Scheme"
           value={parts.scheme}
           onChange={(event) => updatePart('scheme', event.target.value)}
-          aria-label="Scheme"
         />
         <ToolInput
           label="Host"
           value={parts.host}
           onChange={(event) => updatePart('host', event.target.value)}
-          aria-label="Host"
         />
         <ToolInput
           label="Path"
           value={parts.path}
           onChange={(event) => updatePart('path', event.target.value)}
-          aria-label="Path"
           className="font-mono"
         />
         <ToolInput
           label="Hash"
           value={parts.hash}
           onChange={(event) => updatePart('hash', event.target.value)}
-          aria-label="Hash"
         />
       </section>
 
