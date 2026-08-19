@@ -98,23 +98,10 @@ test.describe('Data Generator', () => {
     await expect(page.getByRole('heading', { name: 'Documentation & Help' })).not.toBeVisible();
   });
 
-  test('layout toggle switches orientation', async ({ page }) => {
-    const splitPane = page.locator('div[style*="grid-template-columns"]');
-    const initialStyle = await splitPane.getAttribute('style');
-    expect(initialStyle).toContain('1fr 1fr');
-
-    const controlsDiv = page
-      .locator('div')
-      .filter({ has: page.getByRole('button', { name: 'Generate' }) })
-      .filter({ has: page.getByRole('button', { name: 'Help' }) })
-      .last();
-    const layoutToggle = controlsDiv
-      .locator('button')
-      .filter({ has: page.locator('svg') })
-      .filter({ hasText: '' })
-      .last();
-    await layoutToggle.click();
-
-    await expect(splitPane).toHaveAttribute('style', /1fr;/);
+  test('layout toggle switches between horizontal and vertical', async ({ page }) => {
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
   });
 });
