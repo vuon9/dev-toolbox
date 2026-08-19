@@ -224,7 +224,17 @@ test.describe('Code Encrypter', () => {
     }
 
     // All 9 implemented methods remain selectable
-    for (const m of ['AES', 'AES-GCM', 'DES', 'Triple DES', 'RC4', 'ChaCha20', 'Salsa20', 'RSA', 'XOR']) {
+    for (const m of [
+      'AES',
+      'AES-GCM',
+      'DES',
+      'Triple DES',
+      'RC4',
+      'ChaCha20',
+      'Salsa20',
+      'RSA',
+      'XOR',
+    ]) {
       await expect(select.locator(`option[value="${m}"]`)).toBeEnabled();
     }
   });

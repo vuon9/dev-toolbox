@@ -4,5 +4,8 @@ import ToolCopyButton from './ToolCopyButton';
 
 it('ToolCopyButton exposes title="Copy to clipboard"', () => {
   render(<ToolCopyButton text="x" />);
-  expect(screen.getByRole('button', { name: 'Copy' })).toHaveAttribute('title', 'Copy to clipboard');
+  expect(screen.getByRole('button', { name: 'Copy' })).toHaveAttribute(
+    'title',
+    'Copy to clipboard'
+  );
 });

@@ -1104,7 +1104,9 @@ function FlagsDropdown({ flags, setFlags }) {
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
-                  {isActive && <Check size={16} strokeWidth={3} style={{ color: 'var(--success)' }} />}
+                  {isActive && (
+                    <Check size={16} strokeWidth={3} style={{ color: 'var(--success)' }} />
+                  )}
                 </div>
               </button>
             );

@@ -72,7 +72,10 @@ export default function UrlInspector() {
         gap: '16px',
       }}
     >
-      <ToolHeader title="URL Inspector" description="Parse, edit, sort, encode, and rebuild URLs." />
+      <ToolHeader
+        title="URL Inspector"
+        description="Parse, edit, sort, encode, and rebuild URLs."
+      />
       <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
 
       <section

@@ -155,10 +155,23 @@ export default function HashGenerator() {
           ariaLabel="Input"
         />
         {isAll ? (
-          <div className="flex flex-col flex-1 min-h-0 border rounded-lg overflow-hidden" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
-            <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Output</label>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider" style={{ backgroundColor: 'rgba(59,130,246,0.15)', color: '#3b82f6' }}>All Hashes</span>
+          <div
+            className="flex flex-col flex-1 min-h-0 border rounded-lg overflow-hidden"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}
+          >
+            <div
+              className="flex items-center justify-between px-3 py-2 border-b"
+              style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}
+            >
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Output
+              </label>
+              <span
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider"
+                style={{ backgroundColor: 'rgba(59,130,246,0.15)', color: '#3b82f6' }}
+              >
+                All Hashes
+              </span>
             </div>
             <div className="flex-1 overflow-y-auto p-3">
               <MultiHashOutput value={output} error={error} />
