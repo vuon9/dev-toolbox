@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Pipette, Copy, Check, History, Trash2, Sliders, Zap, Sparkles } from 'lucide-react';
+import { Pipette, Copy, Check, Trash2, Sparkles } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import { ToolHeader } from '../../components/ToolUI';
 import CopyableHex from '../../components/CopyableHex';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import {
@@ -19,6 +20,10 @@ import { getShades, getTints, getTones } from '../../services/colorHarmonyServic
 const PALETTE_TYPES = ['shades', 'tints', 'tones'];
 const PALETTE_LABELS = { shades: 'Shades', tints: 'Tints', tones: 'Tones' };
 const CODE_FORMATS = ['css', 'tailwind', 'swift', 'android', 'react', 'json', 'raw'];
+
+const TOOL_TITLE = 'Color Converter';
+const TOOL_DESCRIPTION =
+  'Convert between Hex, RGB, HSL, CMYK, and HSB. Generate palettes and export code.';
 
 // Color Swatch Component
 const ColorSwatch = ({ color, onClick, size = 40, showHex = true }) => (
@@ -317,29 +322,8 @@ HSB: ${hsb.h}, ${hsb.s}%, ${hsb.b}%`;
           padding: '24px 24px 2px',
         }}
       >
-        <div>
-          <h2
-            style={{
-              fontSize: '24px',
-              fontWeight: 600,
-              letterSpacing: '-0.025em',
-              color: 'var(--foreground)',
-            }}
-          >
-            Color Converter
-          </h2>
-          <p style={{ color: 'var(--muted-foreground)', marginTop: '2px', marginBottom: 0 }}>
-            Convert between Hex, RGB, HSL, CMYK, and HSB. Generate palettes and export code.
-          </p>
-        </div>
-        <div
-          style={{
-            marginTop: '16px',
-            marginLeft: '4px',
-            marginRight: '4px',
-            borderTop: '1px solid var(--border)',
-          }}
-        />
+        <ToolHeader title={TOOL_TITLE} description={TOOL_DESCRIPTION} />
+        <div style={{ borderBottom: '1px solid var(--border)', marginBottom: '16px' }} />
       </div>
 
       {/* Scrollable Content */}
