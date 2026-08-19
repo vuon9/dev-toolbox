@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/Button';
 import {
   Key,
-  ShieldCheck,
   Lock,
   CheckCircle2,
   AlertCircle,
@@ -13,9 +12,9 @@ import {
   FileText,
 } from 'lucide-react';
 import { Decode, Encode, Verify } from '../../services/jwtService';
-import CodeEditor from '../../components/inputs/CodeEditor';
-import HighlightedCode from '../../components/inputs/HighlightedCode';
-import EditorToggle from '../../components/inputs/EditorToggle';
+import { ToolHeader } from '../../components/ToolUI';
+import { ToolEditorPane, EditorToggle } from '../../components/inputs';
+import { ToolLayout } from '../../components/layout';
 
 const SAMPLE_JWT =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
@@ -23,167 +22,6 @@ const SAMPLE_HEADER = '{"alg": "HS256", "typ": "JWT"}';
 const SAMPLE_PAYLOAD = '{"sub": "1234567890", "name": "John Doe", "iat": 1516239022}';
 const SAMPLE_SECRET = 'your-256-bit-secret';
 const TOOL_KEY = 'jwt-debugger';
-
-function ToolHeader({ title, description }) {
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2
-        style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.025em',
-          color: 'var(--foreground)',
-        }}
-      >
-        {title}
-      </h2>
-      <p style={{ color: 'var(--muted-foreground)', marginTop: '4px' }}>{description}</p>
-    </div>
-  );
-}
-
-function ToolTextArea({
-  label,
-  value,
-  onChange,
-  placeholder,
-  readOnly,
-  highlightOn,
-  language = 'plaintext',
-  style = {},
-  dataTestId,
-}) {
-  const handleCopy = () => {
-    if (value) navigator.clipboard.writeText(value);
-  };
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, ...style }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px',
-        }}
-      >
-        <label
-          style={{
-            fontSize: '11px',
-            fontWeight: 600,
-            color: 'var(--muted-foreground)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}
-        >
-          {label}
-        </label>
-        <button
-          onClick={handleCopy}
-          title="Copy to clipboard"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '28px',
-            height: '28px',
-            padding: '6px',
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderRadius: '4px',
-            color: value ? 'var(--muted-foreground)' : 'var(--border)',
-            cursor: value ? 'pointer' : 'not-allowed',
-            transition: 'all 0.15s ease',
-          }}
-          onMouseEnter={(e) => {
-            if (value) {
-              e.currentTarget.style.backgroundColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--foreground)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = value ? 'var(--muted-foreground)' : 'var(--border)';
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-        </button>
-      </div>
-      {readOnly ? (
-        highlightOn ? (
-          <HighlightedCode
-            code={value}
-            language={language}
-            copyable={false}
-            dataTestId={dataTestId}
-            ariaLabel={label}
-          />
-        ) : (
-          <textarea
-            data-testid={dataTestId ? `${dataTestId}-content` : undefined}
-            aria-label={label}
-            value={value}
-            readOnly
-            placeholder={placeholder}
-            style={{
-              flex: 1,
-              width: '100%',
-              minHeight: '150px',
-              padding: '12px',
-              fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-              fontSize: '13px',
-              lineHeight: 1.5,
-              backgroundColor: 'var(--background)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              color: 'var(--foreground)',
-              resize: 'none',
-              outline: 'none',
-            }}
-          />
-        )
-      ) : (
-        <CodeEditor
-          value={value}
-          onChange={(val) => onChange?.({ target: { value: val } })}
-          language={language}
-          highlight={highlightOn}
-          placeholder={placeholder}
-          dataTestId={dataTestId}
-          ariaLabel={label}
-        />
-      )}
-    </div>
-  );
-}
-
-function ToolSplitPane({ children }) {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '16px',
-        flex: 1,
-        minHeight: 0,
-        overflow: 'hidden',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 function ToggleGroup({ options, value, onChange }) {
   return (
@@ -564,15 +402,16 @@ export default function JwtDebugger() {
       </div>
 
       {activeMode === 'decode' ? (
-        <ToolSplitPane>
+        <ToolLayout toolKey={TOOL_KEY} persist togglePosition="top-right">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <ToolTextArea
+            <ToolEditorPane
               label="Encoded Token"
               value={jwt}
-              onChange={(e) => setJwt(e.target.value)}
+              onChange={(val) => setJwt(val)}
               placeholder="Paste encoded JWT here..."
               highlightOn={highlightOn}
               dataTestId="jwt-decode-token"
+              ariaLabel="Encoded Token"
             />
             <div
               style={{
@@ -627,7 +466,7 @@ export default function JwtDebugger() {
             {error && !isValid && <StatusMessage type="error">{error}</StatusMessage>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <ToolTextArea
+            <ToolEditorPane
               label="Header (Algorithm & Type)"
               value={header}
               readOnly
@@ -635,8 +474,9 @@ export default function JwtDebugger() {
               highlightOn={highlightOn}
               language="json"
               dataTestId="jwt-decode-header"
+              ariaLabel="Header (Algorithm & Type)"
             />
-            <ToolTextArea
+            <ToolEditorPane
               label="Payload (Data)"
               value={payload}
               readOnly
@@ -644,29 +484,32 @@ export default function JwtDebugger() {
               highlightOn={highlightOn}
               language="json"
               dataTestId="jwt-decode-payload"
+              ariaLabel="Payload (Data)"
             />
           </div>
-        </ToolSplitPane>
+        </ToolLayout>
       ) : (
-        <ToolSplitPane>
+        <ToolLayout toolKey={TOOL_KEY} persist togglePosition="top-right">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <ToolTextArea
+            <ToolEditorPane
               label="Header (JSON)"
               value={header}
-              onChange={(e) => setHeader(e.target.value)}
+              onChange={(val) => setHeader(val)}
               placeholder='{"alg": "HS256", "typ": "JWT"}'
               highlightOn={highlightOn}
               language="json"
               dataTestId="jwt-encode-header"
+              ariaLabel="Header (JSON)"
             />
-            <ToolTextArea
+            <ToolEditorPane
               label="Payload (JSON)"
               value={payload}
-              onChange={(e) => setPayload(e.target.value)}
+              onChange={(val) => setPayload(val)}
               placeholder='{"sub": "1234567890", "name": "John Doe"}'
               highlightOn={highlightOn}
               language="json"
               dataTestId="jwt-encode-payload"
+              ariaLabel="Payload (JSON)"
             />
             <div
               style={{
@@ -707,17 +550,18 @@ export default function JwtDebugger() {
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <ToolTextArea
+            <ToolEditorPane
               label="Encoded Token"
               value={jwt}
               readOnly
               placeholder="Encoded JWT will appear here..."
               highlightOn={highlightOn}
               dataTestId="jwt-encode-token"
+              ariaLabel="Encoded Token"
             />
             {error && <StatusMessage type="error">{error}</StatusMessage>}
           </div>
-        </ToolSplitPane>
+        </ToolLayout>
       )}
     </div>
   );

@@ -88,4 +88,11 @@ test.describe('JWT Debugger', () => {
     // Wait for verification
     await expect(page.getByText('Signature Verified')).toBeVisible({ timeout: 5000 });
   });
+
+  test('should toggle layout orientation', async ({ page }) => {
+    const split = page.locator('[data-layout-direction]');
+    await expect(split).toHaveAttribute('data-layout-direction', 'horizontal');
+    await page.getByTitle('Switch to vertical layout').click();
+    await expect(split).toHaveAttribute('data-layout-direction', 'vertical');
+  });
 });
