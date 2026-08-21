@@ -10,6 +10,10 @@ import (
 // Settings holds the application settings
 type Settings struct {
 	CloseMinimizesToTray bool `json:"closeMinimizesToTray"`
+	// SpotlightX/SpotlightY remember the last position of the spotlight
+	// panel. nil means the user has never moved it.
+	SpotlightX *int `json:"spotlightX,omitempty"`
+	SpotlightY *int `json:"spotlightY,omitempty"`
 }
 
 // Manager handles settings persistence
@@ -86,5 +90,25 @@ func (m *Manager) ToggleCloseMinimizesToTray() error {
 	m.settings.CloseMinimizesToTray = !m.settings.CloseMinimizesToTray
 	m.mu.Unlock()
 
+	return m.Save()
+}
+
+// GetSpotlightPosition returns the last remembered spotlight position.
+// The bool is false when the user has never moved the panel.
+func (m *Manager) GetSpotlightPosition() (int, int, bool) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	if m.settings.SpotlightX == nil || m.settings.SpotlightY == nil {
+		return 0, 0, false
+	}
+	return *m.settings.SpotlightX, *m.settings.SpotlightY, true
+}
+
+// SetSpotlightPosition remembers the spotlight panel position
+func (m *Manager) SetSpotlightPosition(x, y int) error {
+	m.mu.Lock()
+	m.settings.SpotlightX = &x
+	m.settings.SpotlightY = &y
+	m.mu.Unlock()
 	return m.Save()
 }

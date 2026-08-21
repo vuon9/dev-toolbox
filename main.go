@@ -184,9 +184,29 @@ func main() {
 	// Set the window in spotlight service
 	spotlightService.SetWindow(spotlightWindow)
 
-	// Position the panel once so the first show appears at the right place
-	// before the frontend drives resizes.
-	positionSpotlight(spotlightWindow)
+	// Position the panel: stick to the last position the user dragged it to,
+	// or fall back to the default position on first run.
+	if x, y, ok := settingsManager.GetSpotlightPosition(); ok {
+		spotlightWindow.SetPosition(x, y)
+	} else {
+		positionSpotlight(spotlightWindow)
+	}
+
+	// Remember the panel position whenever it moves (e.g. user drags it), so
+	// the next open sticks to the latest position. Debounced at 200ms to avoid
+	// writing settings on every mousemove during a drag.
+	var lastSpotlightSave time.Time
+	spotlightWindow.OnWindowEvent(events.Common.WindowDidMove, func(event *application.WindowEvent) {
+		now := time.Now()
+		if now.Sub(lastSpotlightSave) < 200*time.Millisecond {
+			return
+		}
+		lastSpotlightSave = now
+		x, y := spotlightWindow.Position()
+		if err := settingsManager.SetSpotlightPosition(x, y); err != nil {
+			log.Printf("[Spotlight] Failed to save position: %v", err)
+		}
+	})
 
 	// Handle spotlight window close - hide instead of close
 	spotlightWindow.OnWindowEvent(events.Common.WindowClosing, func(event *application.WindowEvent) {
@@ -256,7 +276,6 @@ func main() {
 		}
 		if h > 0 {
 			spotlightWindow.SetSize(640, int(h))
-			positionSpotlight(spotlightWindow)
 		}
 	})
 
