@@ -18,7 +18,6 @@ jobs:
       (inputs.mode == 'comment' && (contains(github.event.comment.body, '/oc') || contains(github.event.comment.body, '/opencode')))
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: read
       pull-requests: write
       issues: read
