@@ -21,16 +21,16 @@
 .command-palette-search-icon {
   color: #71717a;
   flex-shrink: 0;
-  /* Wails runtime: mousedown + move on a --wails-draggable: drag element
-     starts a native window drag. The search icon is the explicit drag
-     handle, with a grab cursor so it's discoverable. */
-  --wails-draggable: drag;
+  /* Explicit drag handle for the panel. Wails native window drag does not
+     support NSPanel yet, so dragging is implemented in JS (mousedown/move
+     -> spotlight:drag events) and applied via SetPosition on the backend.
+     The grab cursor makes the handle discoverable. */
   cursor: grab;
 }
 
 /* SVG child elements (circle/line) have zero clientWidth/clientHeight, which
-   makes the runtime's draggable check fail when the click lands on them.
-   Route all pointer events to the svg root so drag works consistently. */
+   breaks offset-based hit checks. Route all pointer events to the svg root
+   so the drag handle behaves consistently. */
 .command-palette-search-icon * {
   pointer-events: none;
 }
@@ -51,7 +51,6 @@
     system-ui,
     -apple-system,
     sans-serif;
-  --wails-draggable: no-drag;
 }
 
 .command-palette-input::placeholder {
@@ -69,7 +68,6 @@
   justify-content: center;
   border-radius: 4px;
   transition: background-color 0.15s ease;
-  --wails-draggable: no-drag;
 }
 
 .command-palette-clear-btn:hover {
@@ -102,7 +100,6 @@
   cursor: pointer;
   transition: background-color 0.15s ease;
   border-bottom: none;
-  --wails-draggable: no-drag;
 }
 
 .command-palette-item:hover,

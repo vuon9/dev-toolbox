@@ -279,6 +279,29 @@ func main() {
 		}
 	})
 
+	// Custom panel dragging. Wails native window drag (startDrag) does not
+	// support NSPanel yet, so the frontend tracks the pointer and we move the
+	// window here with SetPosition.
+	var dragOriginX, dragOriginY int
+	app.Event.On("spotlight:drag:start", func(_ *application.CustomEvent) {
+		dragOriginX, dragOriginY = spotlightWindow.Position()
+	})
+	app.Event.On("spotlight:drag", func(event *application.CustomEvent) {
+		m, ok := event.Data.(map[string]interface{})
+		if !ok {
+			return
+		}
+		dx, _ := m["dx"].(float64)
+		dy, _ := m["dy"].(float64)
+		spotlightWindow.SetPosition(dragOriginX+int(dx), dragOriginY+int(dy))
+	})
+	app.Event.On("spotlight:drag:end", func(_ *application.CustomEvent) {
+		x, y := spotlightWindow.Position()
+		if err := settingsManager.SetSpotlightPosition(x, y); err != nil {
+			log.Printf("[Spotlight] Failed to save drag position: %v", err)
+		}
+	})
+
 	// Proxy these events to the main window
 	app.Event.On("spotlight:theme:toggle", func(_ *application.CustomEvent) {
 		log.Printf("[Spotlight] Relaying theme:toggle to main window")

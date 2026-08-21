@@ -212,6 +212,49 @@ export function CommandPalette() {
   });
   const inputRef = useRef(null);
   const listRef = useRef(null);
+  const dragRef = useRef(null); // { startX, startY } in screen coords
+
+  // Custom panel dragging: Wails native window drag doesn't support NSPanel,
+  // so we track the pointer in JS and let the backend move the window.
+  const handleDragMouseDown = useCallback((e) => {
+    if (e.button !== 0) return;
+    dragRef.current = { startX: e.screenX, startY: e.screenY };
+    try {
+      Events.Emit('spotlight:drag:start');
+    } catch (err) {
+      console.error('Failed to emit spotlight:drag:start', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onMouseMove = (e) => {
+      if (!dragRef.current) return;
+      const { startX, startY } = dragRef.current;
+      try {
+        Events.Emit('spotlight:drag', {
+          dx: e.screenX - startX,
+          dy: e.screenY - startY,
+        });
+      } catch (err) {
+        console.error('Failed to emit spotlight:drag', err);
+      }
+    };
+    const onMouseUp = () => {
+      if (!dragRef.current) return;
+      dragRef.current = null;
+      try {
+        Events.Emit('spotlight:drag:end');
+      } catch (err) {
+        console.error('Failed to emit spotlight:drag:end', err);
+      }
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
 
   // Calculate fuzzy match score
   const fuzzyScore = (target, query) => {
@@ -357,7 +400,11 @@ export function CommandPalette() {
   return (
     <div className="command-palette-container">
       <div className="command-palette-search-box">
-        <Search size={20} className="command-palette-search-icon" />
+        <Search
+          size={20}
+          className="command-palette-search-icon"
+          onMouseDown={handleDragMouseDown}
+        />
         <input
           ref={inputRef}
           type="text"
