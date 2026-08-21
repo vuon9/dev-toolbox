@@ -149,8 +149,9 @@ func main() {
 	windowControls.SetWindow(mainWindow)
 
 	// Create spotlight window with special behaviors
-	// Note: MacWindowLevelFloating and ActivationPolicyAccessory may require
-	// platform-specific code. CollectionBehaviors provide most spotlight functionality.
+	// NSPanel-backed window: non-activating (does not steal focus or activation
+	// from the previously active app) and floating, so it behaves like a real
+	// Spotlight/Raycast launcher overlay instead of a regular NSWindow.
 	spotlightWindow := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:            "Spotlight",
 		Width:            640,
@@ -165,8 +166,14 @@ func main() {
 		// Prevent resizing
 		DisableResize: true,
 		Mac: application.MacWindow{
-			// Float above other windows
-			WindowLevel: application.MacWindowLevelFloating,
+			// Use a dedicated NSPanel so showing or focusing the launcher does
+			// not activate DevToolbox or steal focus from the active app.
+			WindowClass: application.MacWindowClassPanel,
+			PanelPreferences: application.MacPanelPreferences{
+				NonActivating:          true,
+				FloatingPanel:          true,
+				BecomesKeyOnlyIfNeeded: true,
+			},
 			// Hidden title bar for clean look
 			TitleBar: application.MacTitleBar{
 				AppearsTransparent: true,
@@ -217,12 +224,9 @@ func main() {
 		mainWindow.Show()
 		mainWindow.Focus()
 
-		// Hide spotlight window asynchronously to prevent macOS from reverting focus
-		// to the previously active non-DevToolbox app
-		go func() {
-			time.Sleep(100 * time.Millisecond)
-			spotlightWindow.Hide()
-		}()
+		// Hide the panel. Non-activating NSPanels never took over app activation,
+		// so hiding immediately cannot make macOS revert focus to another app.
+		spotlightWindow.Hide()
 
 		// Tell the frontend to navigate
 		mainWindow.EmitEvent("navigate:to", path)
