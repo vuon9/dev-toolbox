@@ -7,14 +7,6 @@ on:
         required: false
         type: string
         default: pr
-      model:
-        required: false
-        type: string
-        default: opencode-go/hy3
-      prompt:
-        required: false
-        type: string
-        default: ''
     secrets:
       OPENCODE_API_KEY:
         required: true
@@ -31,9 +23,4 @@ jobs:
       pull-requests: write
       issues: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-      - run: echo "checkout OK mode=${{ inputs.mode }}"
+      - run: echo "permissions OK mode=${{ inputs.mode }}"
