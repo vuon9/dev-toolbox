@@ -7,7 +7,7 @@ name: opencode-review
 #     review:
 #       uses: vuon9/devtoolbox/.github/workflows/opencode-review-reusable.yml@main
 #       with:
-#         model: opencode/muse-spark-1.2-contributor-free   # optional, has default
+#         model: opencode-go/hy3                              # optional, has default
 #         prompt: "Custom review prompt"                    # optional
 #         mode: pr                                           # optional: pr | comment
 #       secrets:
@@ -19,7 +19,7 @@ name: opencode-review
 # Notes:
 # - Uses the runner GITHUB_TOKEN (use_github_token: true), no GitHub App needed.
 # - Requires the calling repo to grant pull-requests: write to the job.
-# - Free-tier model by default: no billing, no training-data opt-in.
+# - Default model: opencode-go/hy3 (no billing needed).
 
 on:
   workflow_call:
@@ -28,7 +28,7 @@ on:
         description: Model to use for the review
         required: false
         type: string
-        default: opencode/muse-spark-1.2-contributor-free
+        default: opencode-go/hy3
       prompt:
         description: Custom review prompt (defaults to a thorough review prompt)
         required: false
@@ -84,7 +84,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Run OpenCode review
-        uses: anomalyco/opencode/github@latest
+        uses: anomalyco/opencode/github@v1.18.20
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
