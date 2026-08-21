@@ -1,0 +1,12 @@
+name: test-caller-if3
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  call:
+    if: true
+    uses: ./.github/workflows/opencode-review-reusable.yml
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
