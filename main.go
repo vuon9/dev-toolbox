@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -156,8 +157,7 @@ func main() {
 		Title:            "Spotlight",
 		Width:            640,
 		Height:           384,
-		MinHeight:        384,
-		MaxHeight:        384,
+		MinHeight:        100,
 		Frameless:        true,
 		Hidden:           true,
 		BackgroundColour: application.RGBA{Red: 22, Green: 22, Blue: 22, Alpha: 255},
@@ -236,6 +236,26 @@ func main() {
 	app.Event.On("spotlight:close", func(_ *application.CustomEvent) {
 		log.Printf("[Spotlight] Spotlight close requested")
 		spotlightWindow.Hide()
+	})
+
+	// Resize spotlight window to fit content (height driven by the frontend,
+	// which knows how many results are visible). Keeps the panel centered.
+	app.Event.On("spotlight:resize", func(event *application.CustomEvent) {
+		var h float64
+		switch v := event.Data.(type) {
+		case float64:
+			h = v
+		case int:
+			h = float64(v)
+		case string:
+			if parsed, err := strconv.ParseFloat(v, 64); err == nil {
+				h = parsed
+			}
+		}
+		if h > 0 {
+			spotlightWindow.SetSize(640, int(h))
+			spotlightWindow.Center()
+		}
 	})
 
 	// Proxy these events to the main window

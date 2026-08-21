@@ -251,7 +251,7 @@ export function CommandPalette() {
 
   // Listen for command palette opened event
   useEffect(() => {
-    const unsubscribe = window.runtime?.EventsOn?.('command-palette:opened', () => {
+    const unsubscribe = window.runtime?.EventsOn?.('spotlight:opened', () => {
       setSearchQuery('');
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -260,6 +260,20 @@ export function CommandPalette() {
       if (unsubscribe) unsubscribe();
     };
   }, []);
+
+  // Resize the spotlight window to fit the visible results (Spotlight-like
+  // dynamic height). The backend listens for spotlight:resize and resizes
+  // the NSPanel while keeping it centered.
+  useEffect(() => {
+    const itemCount = commands.length;
+    const shown = Math.min(itemCount, 12);
+    const height = Math.max(100, Math.min(600, 49 + shown * 37 + 2));
+    try {
+      Events.Emit('spotlight:resize', height);
+    } catch (err) {
+      console.error('Failed to emit spotlight:resize', err);
+    }
+  }, [commands.length]);
 
   // Save recent command
   const saveRecentCommand = useCallback((commandId) => {
@@ -323,9 +337,9 @@ export function CommandPalette() {
         e.preventDefault();
         console.log('[CommandPalette] Escape pressed, closing...');
         try {
-          Events.Emit('command-palette:close');
+          Events.Emit('spotlight:close');
         } catch (err) {
-          console.error('Failed to emit command-palette:close', err);
+          console.error('Failed to emit spotlight:close', err);
         }
       }
     },

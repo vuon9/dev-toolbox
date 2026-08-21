@@ -59,7 +59,7 @@
 }
 
 .command-palette-results {
-  height: 264px; /* Results area: 80% of original (332 * 0.8) */
+  height: auto; /* Grows with the window; the JS backend drives window height */
   overflow: hidden;
   background: #18181b;
 }
@@ -73,7 +73,7 @@
 
 .command-palette-list {
   overflow-y: auto;
-  max-height: 252px; /* 80% of original (320 * 0.8) */
+  max-height: calc(100vh - 49px); /* Scroll within the window; 49px = search box */
 }
 
 .command-palette-item {
