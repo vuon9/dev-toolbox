@@ -14,7 +14,7 @@ name: opencode-review
 #
 # Notes:
 # - Uses the runner GITHUB_TOKEN (use_github_token: true), no GitHub App needed.
-# - Requires the calling repo to have a pull-requests: write permission context.
+# - Requires the calling repo to grant pull-requests: write to the job.
 # - Free-tier model by default: no billing, no training-data opt-in.
 
 on:
@@ -26,17 +26,10 @@ on:
         type: string
         default: opencode/muse-spark-1.2-contributor-free
       prompt:
-        description: Custom review prompt
+        description: Custom review prompt (defaults to a thorough review prompt)
         required: false
         type: string
-        default: |
-          Review this pull request thoroughly:
-          - Check for bugs, logic errors and edge cases
-          - Look for security issues and unsafe patterns
-          - Assess code quality, consistency and maintainability
-          - Flag missing or weak tests
-          - Suggest concrete improvements
-          Post a clear, structured review comment with file references.
+        default: ''
     secrets:
       OPENCODE_API_KEY:
         required: true
@@ -49,12 +42,30 @@ jobs:
       contents: read
       pull-requests: write
       issues: read
+    env:
+      DEFAULT_PROMPT: |
+        Review this pull request thoroughly:
+        - Check for bugs, logic errors and edge cases
+        - Look for security issues and unsafe patterns
+        - Assess code quality, consistency and maintainability
+        - Flag missing or weak tests
+        - Suggest concrete improvements
+        Post a clear, structured review comment with file references.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
           persist-credentials: false
+
+      - name: Prepare review prompt
+        id: prompt
+        shell: bash
+        run: |
+          PROMPT="${{ inputs.prompt }}"
+          if [ -z "$PROMPT" ]; then PROMPT="$DEFAULT_PROMPT"; fi
+          printf '%s\n' "$PROMPT" > /tmp/review-prompt.txt
+          echo "value=$(cat /tmp/review-prompt.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Run OpenCode review
         uses: anomalyco/opencode/github@latest
@@ -64,4 +75,4 @@ jobs:
         with:
           model: ${{ inputs.model }}
           use_github_token: true
-          prompt: ${{ inputs.prompt }}
+          prompt: ${{ steps.prompt.outputs.value }}
