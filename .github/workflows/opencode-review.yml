@@ -1,6 +1,7 @@
 name: opencode-review
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   issue_comment:
@@ -13,7 +14,7 @@ on:
 jobs:
   review-pr:
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    uses: ./.github/workflows/opencode-review-reusable.yml
+    uses: vuon9/devtoolbox/.github/workflows/opencode-review-reusable.yml@chore/opencode-github-review
     secrets:
       OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
 
@@ -23,6 +24,6 @@ jobs:
        github.event_name == 'pull_request_review_comment') &&
       (contains(github.event.comment.body, '/oc') ||
        contains(github.event.comment.body, '/opencode'))
-    uses: ./.github/workflows/opencode-review-reusable.yml
+    uses: vuon9/devtoolbox/.github/workflows/opencode-review-reusable.yml@chore/opencode-github-review
     secrets:
       OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
