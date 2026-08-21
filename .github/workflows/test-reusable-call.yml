@@ -7,6 +7,10 @@ on:
         required: false
         type: string
         default: opencode/muse-spark-1.2-contributor-free
+      prompt:
+        required: false
+        type: string
+        default: ''
     secrets:
       OPENCODE_API_KEY:
         required: true
@@ -14,7 +18,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DEFAULT_PROMPT: |
+        Review this pull request thoroughly:
+        - Check for bugs, logic errors and edge cases
+        - Look for security issues and unsafe patterns
+        Post a clear, structured review comment with file references.
     steps:
-      - run: echo "model=${{ inputs.model }} keylen=${#OPENCODE_API_KEY}" 
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+      - name: Prepare review prompt
+        id: prompt
+        shell: bash
+        run: |
+          PROMPT="${{ inputs.prompt }}"
+          if [ -z "$PROMPT" ]; then PROMPT="$DEFAULT_PROMPT"; fi
+          printf '%s\n' "$PROMPT" > /tmp/review-prompt.txt
+          echo "value=$(cat /tmp/review-prompt.txt)" >> "$GITHUB_OUTPUT"
+      - run: echo "model=${{ inputs.model }} prompt_lines=$(wc -l < /tmp/review-prompt.txt)"
