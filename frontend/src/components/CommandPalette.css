@@ -28,6 +28,13 @@
   cursor: grab;
 }
 
+/* SVG child elements (circle/line) have zero clientWidth/clientHeight, which
+   makes the runtime's draggable check fail when the click lands on them.
+   Route all pointer events to the svg root so drag works consistently. */
+.command-palette-search-icon * {
+  pointer-events: none;
+}
+
 .command-palette-search-icon:active {
   cursor: grabbing;
 }
