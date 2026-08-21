@@ -2,9 +2,19 @@ name: test-reusable-call
 
 on:
   workflow_call:
+    inputs:
+      model:
+        required: false
+        type: string
+        default: opencode/muse-spark-1.2-contributor-free
+    secrets:
+      OPENCODE_API_KEY:
+        required: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "reusable works"
+      - run: echo "model=${{ inputs.model }} keylen=${#OPENCODE_API_KEY}" 
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

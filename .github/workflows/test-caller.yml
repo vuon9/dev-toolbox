@@ -7,3 +7,5 @@ on:
 jobs:
   call:
     uses: ./.github/workflows/test-reusable-call.yml
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
