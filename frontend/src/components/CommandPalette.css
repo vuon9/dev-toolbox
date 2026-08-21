@@ -8,9 +8,6 @@
   border-radius: 0;
   box-shadow: none;
   overflow: hidden;
-  /* Wails runtime: mousedown + move on a --wails-draggable: drag element
-     starts a native window drag, so the panel can be moved around. */
-  --wails-draggable: drag;
 }
 
 .command-palette-search-box {
@@ -24,6 +21,15 @@
 .command-palette-search-icon {
   color: #71717a;
   flex-shrink: 0;
+  /* Wails runtime: mousedown + move on a --wails-draggable: drag element
+     starts a native window drag. The search icon is the explicit drag
+     handle, with a grab cursor so it's discoverable. */
+  --wails-draggable: drag;
+  cursor: grab;
+}
+
+.command-palette-search-icon:active {
+  cursor: grabbing;
 }
 
 .command-palette-input {
