@@ -64,6 +64,7 @@ jobs:
         startsWith(github.event.review_comment.body, '/oc') ||
         contains(github.event.review_comment.body, ' /opencode') ||
         startsWith(github.event.review_comment.body, '/opencode')))
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     env:
       DEFAULT_PROMPT: |

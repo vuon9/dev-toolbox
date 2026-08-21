@@ -26,6 +26,12 @@ on:
   pull_request_review_comment:
     types: [created]
 
+# Only the newest run per PR/event executes; older in-flight runs are
+# cancelled instead of stacking up notifications.
+concurrency:
+  group: ai-code-review-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   review-pr:
     permissions:
