@@ -4,6 +4,12 @@ on:
   workflow_dispatch:
   pull_request:
 
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  issues: read
+
 jobs:
   call:
     uses: ./.github/workflows/test-reusable-call2.yml
