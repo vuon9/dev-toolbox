@@ -7,14 +7,6 @@ on:
         required: false
         type: string
         default: pr
-      model:
-        required: false
-        type: string
-        default: opencode-go/hy3
-      prompt:
-        required: false
-        type: string
-        default: ''
     secrets:
       OPENCODE_API_KEY:
         required: true
@@ -31,10 +23,8 @@ jobs:
       pull-requests: write
       issues: read
     steps:
-      - name: Get opencode version
-        id: version
+      - name: Set output
+        id: out
         shell: bash
-        run: |
-          VERSION=$(curl -sf https://api.github.com/repos/anomalyco/opencode/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
-          echo "version=${VERSION:-latest}" >> "$GITHUB_OUTPUT"
-      - run: echo "done mode=${{ inputs.mode }} version=${{ steps.version.outputs.version }}"
+        run: echo "foo=bar" >> "$GITHUB_OUTPUT"
+      - run: echo "done foo=${{ steps.out.outputs.foo }} mode=${{ inputs.mode }}"
