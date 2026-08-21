@@ -1,0 +1,42 @@
+name: ai-code-review
+
+# Dispatcher for AI code review. The actual review logic lives in
+# ai-code-review-reusable.yml (workflow_call) so any repo can reuse it:
+#
+#   jobs:
+#     review:
+#       uses: vuon9/devtoolbox/.github/workflows/ai-code-review-reusable.yml@main
+#       with:
+#         model: opencode-go/hy3          # optional, has default
+#         prompt: "Custom prompt"         # optional
+#         mode: pr                        # optional: pr | comment
+#       secrets:
+#         OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+#
+# NOTE: GitHub caches workflow definitions by file path. If this file was
+# previously deployed under a different name (e.g. opencode-review.yml),
+# renames/edits may not re-parse; use a NEW file name when restructuring.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  review-pr:
+    uses: ./.github/workflows/ai-code-review-reusable.yml
+    with:
+      mode: pr
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+
+  on-demand:
+    uses: ./.github/workflows/ai-code-review-reusable.yml
+    with:
+      mode: comment
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

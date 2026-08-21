@@ -1,11 +1,11 @@
-name: opencode-review
+name: ai-code-review-reusable
 
-# Reusable PR review workflow.
+# Reusable AI code review workflow.
 #
 # Call from any repo:
 #   jobs:
 #     review:
-#       uses: vuon9/devtoolbox/.github/workflows/opencode-review-reusable.yml@main
+#       uses: vuon9/devtoolbox/.github/workflows/ai-code-review-reusable.yml@main
 #       with:
 #         model: opencode-go/hy3                              # optional, has default
 #         prompt: "Custom review prompt"                    # optional
@@ -19,7 +19,7 @@ name: opencode-review
 # Notes:
 # - Uses the runner GITHUB_TOKEN (use_github_token: true), no GitHub App needed.
 # - Requires the calling repo to grant pull-requests: write to the job.
-# - Default model: opencode-go/hy3 (no billing needed).
+# - Default model: opencode-go/hy3.
 
 on:
   workflow_call:
