@@ -52,7 +52,18 @@ jobs:
   review:
     if: |
       (inputs.mode == 'pr' && github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
-      (inputs.mode == 'comment' && (contains(github.event.comment.body, '/oc') || contains(github.event.comment.body, '/opencode')))
+      (inputs.mode == 'comment' &&
+       github.actor != 'github-actions[bot]' &&
+       (github.event.issue.pull_request != null || github.event.pull_request != null) &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+       (contains(github.event.comment.body, ' /oc') ||
+        startsWith(github.event.comment.body, '/oc') ||
+        contains(github.event.comment.body, ' /opencode') ||
+        startsWith(github.event.comment.body, '/opencode') ||
+        contains(github.event.review_comment.body, ' /oc') ||
+        startsWith(github.event.review_comment.body, '/oc') ||
+        contains(github.event.review_comment.body, ' /opencode') ||
+        startsWith(github.event.review_comment.body, '/opencode')))
     runs-on: ubuntu-latest
     env:
       DEFAULT_PROMPT: |
@@ -65,7 +76,7 @@ jobs:
         Post a clear, structured review comment with file references.
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 1
           persist-credentials: false
@@ -91,7 +102,7 @@ jobs:
           echo "version=${VERSION:-latest}" >> "$GITHUB_OUTPUT"
 
       - name: Cache opencode
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.opencode/bin
           key: opencode-${{ runner.os }}-${{ runner.arch }}-${{ steps.version.outputs.version }}

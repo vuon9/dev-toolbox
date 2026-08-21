@@ -29,7 +29,6 @@ on:
 jobs:
   review-pr:
     permissions:
-      id-token: write
       contents: read
       pull-requests: write
       issues: read
@@ -41,10 +40,9 @@ jobs:
 
   on-demand:
     permissions:
-      id-token: write
       contents: read
       pull-requests: write
-      issues: write
+      issues: read
     uses: ./.github/workflows/ai-code-review-reusable.yml
     with:
       mode: comment
