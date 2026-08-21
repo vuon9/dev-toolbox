@@ -54,18 +54,3 @@ func (s *SpotlightService) Toggle() {
 		s.Show()
 	}
 }
-
-// IsVisible returns whether the spotlight window is visible
-func (s *SpotlightService) IsVisible() bool {
-	if s.window == nil {
-		return false
-	}
-	return s.window.IsVisible()
-}
-
-// Close closes the spotlight window
-func (s *SpotlightService) Close() {
-	if s.window != nil {
-		s.window.Close()
-	}
-}

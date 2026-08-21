@@ -21,12 +21,8 @@ func TestSpotlightService_Operations(t *testing.T) {
 		{
 			name: "Toggle with nil window",
 			test: func(t *testing.T, s *SpotlightService) {
-				// Initially not visible
-				assert.False(t, s.IsVisible())
-
 				// Toggle should not panic with nil window
 				s.Toggle()
-				assert.False(t, s.IsVisible())
 			},
 		},
 		{
@@ -34,7 +30,6 @@ func TestSpotlightService_Operations(t *testing.T) {
 			test: func(t *testing.T, s *SpotlightService) {
 				// Should not panic with nil window
 				s.Show()
-				assert.False(t, s.IsVisible())
 			},
 		},
 		{
@@ -42,14 +37,6 @@ func TestSpotlightService_Operations(t *testing.T) {
 			test: func(t *testing.T, s *SpotlightService) {
 				// Should not panic with nil window
 				s.Hide()
-				assert.False(t, s.IsVisible())
-			},
-		},
-		{
-			name: "IsVisible with nil window",
-			test: func(t *testing.T, s *SpotlightService) {
-				// Should return false with nil window
-				assert.False(t, s.IsVisible())
 			},
 		},
 	}

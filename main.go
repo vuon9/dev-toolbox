@@ -212,7 +212,6 @@ func main() {
 	spotlightWindow.OnWindowEvent(events.Common.WindowClosing, func(event *application.WindowEvent) {
 		event.Cancel()
 		spotlightWindow.Hide()
-		spotlightWindow.EmitEvent("spotlight:closed", "")
 	})
 
 	// Listen for spotlight navigation events
@@ -302,12 +301,6 @@ func main() {
 		}
 	})
 
-	// Proxy these events to the main window
-	app.Event.On("spotlight:theme:toggle", func(_ *application.CustomEvent) {
-		log.Printf("[Spotlight] Relaying theme:toggle to main window")
-		mainWindow.EmitEvent("theme:toggle", nil)
-	})
-
 	app.Event.On("window:toggle", func(_ *application.CustomEvent) {
 		log.Printf("[Spotlight] Window toggle requested")
 		if mainWindow.IsVisible() {
@@ -316,11 +309,6 @@ func main() {
 			mainWindow.Show()
 			mainWindow.Focus()
 		}
-	})
-
-	app.Event.On("app:quit", func(_ *application.CustomEvent) {
-		log.Printf("[Spotlight] App quit requested via spotlight")
-		app.Quit()
 	})
 
 	// Setup system tray
