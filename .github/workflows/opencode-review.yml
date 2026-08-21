@@ -32,7 +32,7 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          model: opencode-go/muse-spark-1.2-contributor
+          model: opencode-go/deepseek-v4-flash
           use_github_token: true
           prompt: |
             Review this pull request thoroughly:
@@ -68,5 +68,5 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          model: opencode-go/muse-spark-1.2-contributor
+          model: opencode-go/deepseek-v4-flash
           use_github_token: true
