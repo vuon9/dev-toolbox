@@ -2,9 +2,15 @@ name: ai-code-review-reusable
 
 # Reusable AI code review workflow.
 #
-# Call from any repo:
+# Call from any repo (permissions MUST live on the caller job — a
+# permissions block inside the reusable job causes startup_failure):
 #   jobs:
 #     review:
+#       permissions:
+#         id-token: write
+#         contents: read
+#         pull-requests: write
+#         issues: read
 #       uses: vuon9/devtoolbox/.github/workflows/ai-code-review-reusable.yml@main
 #       with:
 #         model: opencode-go/hy3                              # optional, has default
@@ -18,7 +24,6 @@ name: ai-code-review-reusable
 #
 # Notes:
 # - Uses the runner GITHUB_TOKEN (use_github_token: true), no GitHub App needed.
-# - Requires the calling repo to grant pull-requests: write to the job.
 # - Default model: opencode-go/hy3.
 
 on:
@@ -49,11 +54,6 @@ jobs:
       (inputs.mode == 'pr' && github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
       (inputs.mode == 'comment' && (contains(github.event.comment.body, '/oc') || contains(github.event.comment.body, '/opencode')))
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-      issues: read
     env:
       DEFAULT_PROMPT: |
         Review this pull request thoroughly:

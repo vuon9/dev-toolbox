@@ -28,6 +28,11 @@ on:
 
 jobs:
   review-pr:
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: read
     uses: ./.github/workflows/ai-code-review-reusable.yml
     with:
       mode: pr
@@ -35,6 +40,11 @@ jobs:
       OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
 
   on-demand:
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: write
     uses: ./.github/workflows/ai-code-review-reusable.yml
     with:
       mode: comment
