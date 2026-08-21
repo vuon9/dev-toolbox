@@ -31,4 +31,30 @@ jobs:
       pull-requests: write
       issues: read
     steps:
-      - run: echo "mode=${{ inputs.mode }} event=${{ github.event_name }}"
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Prepare review prompt
+        id: prompt
+        shell: bash
+        run: |
+          PROMPT="${{ inputs.prompt }}"
+          if [ -z "$PROMPT" ]; then PROMPT="$DEFAULT_PROMPT"; fi
+          printf '%s\n' "$PROMPT" > /tmp/review-prompt.txt
+          {
+            echo "value<<PROMPT_EOF"
+            cat /tmp/review-prompt.txt
+            echo "PROMPT_EOF"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          DEFAULT_PROMPT: |
+            Review this pull request thoroughly:
+            - Check for bugs, logic errors and edge cases
+            - Look for security issues and unsafe patterns
+            - Assess code quality, consistency and maintainability
+            - Flag missing or weak tests
+            - Suggest concrete improvements
+            Post a clear, structured review comment with file references.
+      - run: echo "mode=${{ inputs.mode }} model=${{ inputs.model }} prompt=${{ steps.prompt.outputs.value }}"
