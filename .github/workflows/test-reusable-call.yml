@@ -3,6 +3,10 @@ name: test-reusable-call
 on:
   workflow_call:
     inputs:
+      mode:
+        required: false
+        type: string
+        default: pr
       model:
         required: false
         type: string
@@ -17,24 +21,9 @@ on:
 
 jobs:
   test:
+    if: |
+      (inputs.mode == 'pr' && github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      (inputs.mode == 'comment' && (contains(github.event.comment.body, '/oc') || contains(github.event.comment.body, '/opencode')))
     runs-on: ubuntu-latest
-    env:
-      DEFAULT_PROMPT: |
-        Review this pull request thoroughly:
-        - Check for bugs, logic errors and edge cases
-        - Look for security issues and unsafe patterns
-        Post a clear, structured review comment with file references.
     steps:
-      - name: Prepare review prompt
-        id: prompt
-        shell: bash
-        run: |
-          PROMPT="${{ inputs.prompt }}"
-          if [ -z "$PROMPT" ]; then PROMPT="$DEFAULT_PROMPT"; fi
-          printf '%s\n' "$PROMPT" > /tmp/review-prompt.txt
-          {
-            echo "value<<PROMPT_EOF"
-            cat /tmp/review-prompt.txt
-            echo "PROMPT_EOF"
-          } >> "$GITHUB_OUTPUT"
-      - run: echo "model=${{ inputs.model }} prompt_lines=$(wc -l < /tmp/review-prompt.txt)"
+      - run: echo "mode=${{ inputs.mode }} event=${{ github.event_name }}"
