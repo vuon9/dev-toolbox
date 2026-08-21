@@ -11,19 +11,19 @@ on:
 
 # Dispatcher: delegates to the reusable workflow so the review logic lives
 # in one place (opencode-review-reusable.yml) and can be reused by other repos.
+# GitHub does not allow `if:` conditions on jobs that use a reusable workflow,
+# so the pr/comment gating lives inside the reusable workflow via the `mode` input.
 jobs:
   review-pr:
-    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     uses: ./.github/workflows/opencode-review-reusable.yml
+    with:
+      mode: pr
     secrets:
       OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
 
   on-demand:
-    if: |
-      (github.event_name == 'issue_comment' ||
-       github.event_name == 'pull_request_review_comment') &&
-      (contains(github.event.comment.body, '/oc') ||
-       contains(github.event.comment.body, '/opencode'))
     uses: ./.github/workflows/opencode-review-reusable.yml
+    with:
+      mode: comment
     secrets:
       OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

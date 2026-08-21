@@ -9,8 +9,12 @@ name: opencode-review
 #       with:
 #         model: opencode/muse-spark-1.2-contributor-free   # optional, has default
 #         prompt: "Custom review prompt"                    # optional
+#         mode: pr                                           # optional: pr | comment
 #       secrets:
 #         OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}  # required
+#
+# mode=pr      → runs only for non-draft pull_request events
+# mode=comment → runs only when the comment contains /oc or /opencode
 #
 # Notes:
 # - Uses the runner GITHUB_TOKEN (use_github_token: true), no GitHub App needed.
@@ -30,12 +34,20 @@ on:
         required: false
         type: string
         default: ''
+      mode:
+        description: pr (auto-review PRs) or comment (on-demand /oc /opencode)
+        required: false
+        type: string
+        default: pr
     secrets:
       OPENCODE_API_KEY:
         required: true
 
 jobs:
   review:
+    if: |
+      (inputs.mode == 'pr' && github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      (inputs.mode == 'comment' && (contains(github.event.comment.body, '/oc') || contains(github.event.comment.body, '/opencode')))
     runs-on: ubuntu-latest
     permissions:
       id-token: write
