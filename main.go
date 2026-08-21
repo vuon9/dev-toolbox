@@ -161,8 +161,6 @@ func main() {
 		Frameless:        true,
 		Hidden:           true,
 		BackgroundColour: application.RGBA{Red: 22, Green: 22, Blue: 22, Alpha: 255},
-		// Center the window
-		InitialPosition: application.WindowCentered,
 		// Prevent resizing
 		DisableResize: true,
 		Mac: application.MacWindow{
@@ -185,6 +183,10 @@ func main() {
 
 	// Set the window in spotlight service
 	spotlightService.SetWindow(spotlightWindow)
+
+	// Position the panel once so the first show appears at the right place
+	// before the frontend drives resizes.
+	positionSpotlight(spotlightWindow)
 
 	// Handle spotlight window close - hide instead of close
 	spotlightWindow.OnWindowEvent(events.Common.WindowClosing, func(event *application.WindowEvent) {
@@ -254,7 +256,7 @@ func main() {
 		}
 		if h > 0 {
 			spotlightWindow.SetSize(640, int(h))
-			spotlightWindow.Center()
+			positionSpotlight(spotlightWindow)
 		}
 	})
 
@@ -318,6 +320,20 @@ func main() {
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
+}
+
+// positionSpotlight keeps the spotlight panel horizontally centered while its
+// top edge stays at a fixed height below the top of the screen, so resizing
+// makes it grow downward instead of re-centering (macOS Spotlight behaviour).
+func positionSpotlight(w *application.WebviewWindow) {
+	screen, err := w.GetScreen()
+	if err != nil || screen == nil {
+		w.Center()
+		return
+	}
+	x := screen.Bounds.X + (screen.Bounds.Width-640)/2
+	y := screen.Bounds.Y + int(float64(screen.Bounds.Height)*0.15)
+	w.SetPosition(x, y)
 }
 
 func GinMiddleware(ginEngine *gin.Engine) application.Middleware {
