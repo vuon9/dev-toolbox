@@ -37,9 +37,4 @@ jobs:
         run: |
           VERSION=$(curl -sf https://api.github.com/repos/anomalyco/opencode/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
           echo "version=${VERSION:-latest}" >> "$GITHUB_OUTPUT"
-      - name: Cache opencode
-        uses: actions/cache@v4
-        with:
-          path: ~/.opencode/bin
-          key: opencode-${{ runner.os }}-${{ runner.arch }}-${{ steps.version.outputs.version }}
-      - run: echo "done mode=${{ inputs.mode }}"
+      - run: echo "done mode=${{ inputs.mode }} version=${{ steps.version.outputs.version }}"
