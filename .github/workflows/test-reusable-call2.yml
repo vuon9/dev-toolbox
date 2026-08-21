@@ -1,0 +1,39 @@
+name: test-reusable-call2
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        required: false
+        type: string
+        default: pr
+      model:
+        required: false
+        type: string
+        default: opencode-go/hy3
+      prompt:
+        required: false
+        type: string
+        default: ''
+    secrets:
+      OPENCODE_API_KEY:
+        required: true
+
+jobs:
+  test:
+    if: |
+      (inputs.mode == 'pr' && github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      (inputs.mode == 'comment' && (contains(github.event.comment.body, '/oc') || contains(github.event.comment.body, '/opencode')))
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - run: echo "checkout OK mode=${{ inputs.mode }}"

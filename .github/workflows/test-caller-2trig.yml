@@ -7,7 +7,7 @@ on:
 
 jobs:
   review-pr:
-    uses: ./.github/workflows/ai-code-review-reusable.yml
+    uses: ./.github/workflows/test-reusable-call2.yml
     with:
       mode: pr
     secrets:
