@@ -32,5 +32,9 @@ jobs:
           PROMPT="${{ inputs.prompt }}"
           if [ -z "$PROMPT" ]; then PROMPT="$DEFAULT_PROMPT"; fi
           printf '%s\n' "$PROMPT" > /tmp/review-prompt.txt
-          echo "value=$(cat /tmp/review-prompt.txt)" >> "$GITHUB_OUTPUT"
+          {
+            echo "value<<PROMPT_EOF"
+            cat /tmp/review-prompt.txt
+            echo "PROMPT_EOF"
+          } >> "$GITHUB_OUTPUT"
       - run: echo "model=${{ inputs.model }} prompt_lines=$(wc -l < /tmp/review-prompt.txt)"
