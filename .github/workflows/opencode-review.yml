@@ -8,40 +8,14 @@ on:
   pull_request_review_comment:
     types: [created]
 
-# Auto-review every non-draft PR with the Muse Spark model via OpenCode Go.
-# You can also trigger an on-demand run by commenting `/oc` or `/opencode`.
+# Dispatcher: delegates to the reusable workflow so the review logic lives
+# in one place (opencode-review-reusable.yml) and can be reused by other repos.
 jobs:
   review-pr:
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-      issues: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Run OpenCode review
-        uses: anomalyco/opencode/github@latest
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          model: opencode/muse-spark-1.2-contributor-free
-          use_github_token: true
-          prompt: |
-            Review this pull request thoroughly:
-            - Check for bugs, logic errors and edge cases
-            - Look for security issues and unsafe patterns
-            - Assess code quality, consistency and maintainability
-            - Flag missing or weak tests
-            - Suggest concrete improvements
-            Post a clear, structured review comment with file references.
+    uses: ./.github/workflows/opencode-review-reusable.yml
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
 
   on-demand:
     if: |
@@ -49,24 +23,6 @@ jobs:
        github.event_name == 'pull_request_review_comment') &&
       (contains(github.event.comment.body, '/oc') ||
        contains(github.event.comment.body, '/opencode'))
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-      issues: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          model: opencode/muse-spark-1.2-contributor-free
-          use_github_token: true
+    uses: ./.github/workflows/opencode-review-reusable.yml
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

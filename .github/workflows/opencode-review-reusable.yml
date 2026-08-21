@@ -1,0 +1,67 @@
+name: opencode-review
+
+# Reusable PR review workflow.
+#
+# Call from any repo:
+#   jobs:
+#     review:
+#       uses: vuon9/devtoolbox/.github/workflows/opencode-review-reusable.yml@main
+#       with:
+#         model: opencode/muse-spark-1.2-contributor-free   # optional, has default
+#         prompt: "Custom review prompt"                    # optional
+#       secrets:
+#         OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}  # required
+#
+# Notes:
+# - Uses the runner GITHUB_TOKEN (use_github_token: true), no GitHub App needed.
+# - Requires the calling repo to have a pull-requests: write permission context.
+# - Free-tier model by default: no billing, no training-data opt-in.
+
+on:
+  workflow_call:
+    inputs:
+      model:
+        description: Model to use for the review
+        required: false
+        type: string
+        default: opencode/muse-spark-1.2-contributor-free
+      prompt:
+        description: Custom review prompt
+        required: false
+        type: string
+        default: |
+          Review this pull request thoroughly:
+          - Check for bugs, logic errors and edge cases
+          - Look for security issues and unsafe patterns
+          - Assess code quality, consistency and maintainability
+          - Flag missing or weak tests
+          - Suggest concrete improvements
+          Post a clear, structured review comment with file references.
+    secrets:
+      OPENCODE_API_KEY:
+        required: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Run OpenCode review
+        uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          model: ${{ inputs.model }}
+          use_github_token: true
+          prompt: ${{ inputs.prompt }}
