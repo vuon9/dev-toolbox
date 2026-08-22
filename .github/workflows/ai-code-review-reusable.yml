@@ -13,7 +13,7 @@ name: ai-code-review-reusable
 #         issues: read
 #       uses: vuon9/devtoolbox/.github/workflows/ai-code-review-reusable.yml@main
 #       with:
-#         model: opencode-go/hy3                              # optional, has default
+#         model: opencode/muse-spark-1.2-contributor       # optional, has default
 #         prompt: "Custom review prompt"                    # optional
 #         mode: pr                                           # optional: pr | comment
 #       secrets:
@@ -24,7 +24,7 @@ name: ai-code-review-reusable
 #
 # Notes:
 # - Uses the runner GITHUB_TOKEN (use_github_token: true), no GitHub App needed.
-# - Default model: opencode-go/hy3.
+# - Default model: opencode/muse-spark-1.2-contributor (requires data opt-in).
 
 on:
   workflow_call:
@@ -33,7 +33,7 @@ on:
         description: Model to use for the review
         required: false
         type: string
-        default: opencode-go/hy3
+        default: opencode/muse-spark-1.2-contributor
       prompt:
         description: Custom review prompt (defaults to a thorough review prompt)
         required: false
