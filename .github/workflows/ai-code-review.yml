@@ -1,0 +1,56 @@
+name: ai-code-review
+
+# Dispatcher for AI code review. The actual review logic lives in the
+# reusable gh-workflows repo:
+#
+#   jobs:
+#     review:
+#       permissions:
+#         contents: read
+#         pull-requests: write
+#         issues: read
+#       uses: vuon9/gh-workflows/.github/workflows/ai-code-review-reusable.yml@v0.1.9
+#       with:
+#         model: opencode/muse-spark-1.2-contributor-free  # optional
+#         prompt: "Custom prompt"         # optional
+#         mode: pr                        # optional: pr | comment
+#       secrets:
+#         OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+# Only the newest run per PR/event executes; older in-flight runs are
+# cancelled instead of stacking up notifications.
+concurrency:
+  group: ai-code-review-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review-pr:
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+    uses: vuon9/gh-workflows/.github/workflows/ai-code-review-reusable.yml@v0.1.9
+    with:
+      mode: pr
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+
+  on-demand:
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+    uses: vuon9/gh-workflows/.github/workflows/ai-code-review-reusable.yml@v0.1.9
+    with:
+      mode: comment
+    secrets:
+      OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
