@@ -31,6 +31,8 @@ describe('normalizeColor', () => {
     [undefined],
     [''],
     ['notacolor'],
+    ['#12345'],
+    ['#1234567'],
     ['var(--undefined-var-that-misses)'],
     ['var(nested var(--x))'],
   ])('rejects invalid input: %s', (input) => {

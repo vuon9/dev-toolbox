@@ -29,6 +29,7 @@ export default function MonacoCodeEditor({
   dataTestId,
   ariaLabel,
   showLineNumbers = false,
+  error = false,
   className = '',
   style = {},
 }) {
@@ -39,7 +40,10 @@ export default function MonacoCodeEditor({
 
   useMonacoDevtoolboxTheme();
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
+  // Keep latest callbacks/props for imperative handlers (intentionally no deps)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     onChangeRef.current = onChange;
     valueRef.current = value;
@@ -48,27 +52,31 @@ export default function MonacoCodeEditor({
   // Create the editor once
   useEffect(() => {
     let cancelled = false;
-    getMonaco().then((monaco) => {
-      if (cancelled || !containerRef.current || editorRef.current) return;
-      const editor = monaco.editor.create(containerRef.current, {
-        ...BASE_OPTIONS,
-        value: valueRef.current ?? '',
-        language: MONACO_LANGUAGE_IDS[language?.toLowerCase()] || 'plaintext',
-        theme: 'devtoolbox',
-        readOnly,
-        domReadOnly: readOnly,
-        lineNumbers: showLineNumbers ? 'on' : 'off',
-        contextmenu: !readOnly,
-        ariaLabel: ariaLabel || label || placeholder || 'Code editor',
-        ...(placeholder ? { placeholder } : {}),
+    getMonaco()
+      .then((monaco) => {
+        if (cancelled || !containerRef.current || editorRef.current) return;
+        const editor = monaco.editor.create(containerRef.current, {
+          ...BASE_OPTIONS,
+          value: valueRef.current ?? '',
+          language: MONACO_LANGUAGE_IDS[language?.toLowerCase()] || 'plaintext',
+          theme: 'devtoolbox',
+          readOnly,
+          domReadOnly: readOnly,
+          lineNumbers: showLineNumbers ? 'on' : 'off',
+          contextmenu: !readOnly,
+          ariaLabel: ariaLabel || label || placeholder || 'Code editor',
+          ...(placeholder ? { placeholder } : {}),
+        });
+        editor.onDidChangeModelContent(() => {
+          const next = editor.getValue();
+          if (next !== valueRef.current) onChangeRef.current?.(next);
+        });
+        editorRef.current = editor;
+        setReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
       });
-      editor.onDidChangeModelContent(() => {
-        const next = editor.getValue();
-        if (next !== valueRef.current) onChangeRef.current?.(next);
-      });
-      editorRef.current = editor;
-      setReady(true);
-    });
     return () => {
       cancelled = true;
       const editor = editorRef.current;
@@ -82,7 +90,10 @@ export default function MonacoCodeEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync external value -> model (skip programmatic echo)
+  // Sync external value -> model (skip programmatic echo).
+  // NOTE: setValue resets the undo stack and cursor; acceptable for the pilot
+  // where external value changes come from tool actions (sample/clear), not
+  // concurrent editing.
   useEffect(() => {
     const editor = editorRef.current;
     if (!editor || value === undefined) return;
@@ -123,7 +134,7 @@ export default function MonacoCodeEditor({
         flexDirection: 'column',
         height: '100%',
         minHeight: '120px',
-        border: '1px solid var(--border)',
+        border: error ? '1px solid #ef4444' : '1px solid var(--border)',
         backgroundColor: 'var(--background)',
         borderRadius: '8px',
         overflow: 'hidden',
@@ -155,7 +166,7 @@ export default function MonacoCodeEditor({
         aria-label={ariaLabel || label || placeholder || 'Code editor'}
         style={{ flex: 1, position: 'relative', minHeight: 0 }}
       />
-      {!ready && (
+      {!ready && !loadError && (
         <div
           style={{
             position: 'absolute',
@@ -171,6 +182,28 @@ export default function MonacoCodeEditor({
         >
           {placeholder || 'Loading editor...'}
         </div>
+      )}
+      {loadError && (
+        <textarea
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
+          placeholder={placeholder}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            padding: '12px',
+            fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
+            fontSize: '14px',
+            lineHeight: 1.5,
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: 'var(--foreground)',
+            resize: 'none',
+            outline: 'none',
+          }}
+        />
       )}
     </div>
   );

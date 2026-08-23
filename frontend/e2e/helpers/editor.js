@@ -42,10 +42,7 @@ export async function fillEditor(page, testId, value) {
     await expect
       .poll(() =>
         page.evaluate(
-          (v) =>
-            (window.__monaco?.editor.getModels() ?? []).some(
-              (m) => m.getValue() === v || m.getValue().endsWith(`\n${v}`)
-            ),
+          (v) => (window.__monacoModels?.() ?? []).some((m) => m === v || m.endsWith(`\n${v}`)),
           value
         )
       )

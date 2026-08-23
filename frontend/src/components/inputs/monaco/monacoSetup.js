@@ -9,7 +9,7 @@ export function getMonaco() {
       import('monaco-editor/language/css/css.worker.js?worker'),
       import('monaco-editor/language/html/html.worker.js?worker'),
     ]).then(([monaco, editorWorker, jsonWorker, cssWorker, htmlWorker]) => {
-      self.MonacoEnvironment = {
+      globalThis.MonacoEnvironment = {
         getWorker(_workerId, label) {
           if (label === 'json') return new jsonWorker.default();
           if (label === 'css' || label === 'scss' || label === 'less')
@@ -19,7 +19,11 @@ export function getMonaco() {
           return new editorWorker.default();
         },
       };
-      if (typeof window !== 'undefined') window.__monaco = monaco;
+      // Expose a minimal, read-only snapshot for tests/e2e without leaking
+      // the full editor API to page scripts.
+      if (typeof globalThis !== 'undefined') {
+        globalThis.__monacoModels = () => monaco.editor.getModels().map((m) => m.getValue());
+      }
       return monaco;
     });
   }
@@ -70,11 +74,14 @@ export function normalizeColor(value) {
   }
   if (/^#[0-9a-f]{3,8}$/i.test(c)) {
     const hex = c.slice(1);
-    // Expand #RGB / #RGBA short forms; pass #RRGGBB / #RRGGBBAA through
+    // Valid CSS hex lengths only: #RGB(3) #RGBA(4) #RRGGBB(6) #RRGGBBAA(8)
     if (hex.length === 3 || hex.length === 4) {
       return '#' + [...hex].map((ch) => ch + ch).join('');
     }
-    return '#' + hex;
+    if (hex.length === 6 || hex.length === 8) {
+      return '#' + hex;
+    }
+    return null;
   }
   const ctx = getColorCtx();
   if (!ctx) return null;

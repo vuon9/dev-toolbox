@@ -31,6 +31,7 @@ export default function MonacoHighlightedCode({
   label,
   dataTestId,
   ariaLabel,
+  error = false,
 }) {
   const containerRef = useRef(null);
   const editorRef = useRef(null);
@@ -38,7 +39,10 @@ export default function MonacoHighlightedCode({
 
   useMonacoDevtoolboxTheme();
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
+  // Keep latest props for imperative handlers (intentionally no deps)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     codeRef.current = code;
   });
@@ -46,19 +50,23 @@ export default function MonacoHighlightedCode({
   // Create the editor once
   useEffect(() => {
     let cancelled = false;
-    getMonaco().then((monaco) => {
-      if (cancelled || !containerRef.current || editorRef.current) return;
-      const editor = monaco.editor.create(containerRef.current, {
-        ...READ_ONLY_OPTIONS,
-        value: codeRef.current ?? '',
-        language: MONACO_LANGUAGE_IDS[language?.toLowerCase()] || 'plaintext',
-        theme: 'devtoolbox',
-        lineNumbers: showLineNumbers ? 'on' : 'off',
-        ariaLabel: ariaLabel || label || 'Read-only code output',
+    getMonaco()
+      .then((monaco) => {
+        if (cancelled || !containerRef.current || editorRef.current) return;
+        const editor = monaco.editor.create(containerRef.current, {
+          ...READ_ONLY_OPTIONS,
+          value: codeRef.current ?? '',
+          language: MONACO_LANGUAGE_IDS[language?.toLowerCase()] || 'plaintext',
+          theme: 'devtoolbox',
+          lineNumbers: showLineNumbers ? 'on' : 'off',
+          ariaLabel: ariaLabel || label || 'Read-only code output',
+        });
+        editorRef.current = editor;
+        setReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
       });
-      editorRef.current = editor;
-      setReady(true);
-    });
     return () => {
       cancelled = true;
       const editor = editorRef.current;
@@ -110,7 +118,7 @@ export default function MonacoHighlightedCode({
         flexDirection: 'column',
         height: '100%',
         minHeight: '60px',
-        border: '1px solid var(--border)',
+        border: error ? '1px solid #ef4444' : '1px solid var(--border)',
         backgroundColor: 'var(--background)',
         position: 'relative',
       }}
@@ -149,6 +157,22 @@ export default function MonacoHighlightedCode({
         aria-label={ariaLabel || label || 'Read-only code output'}
         style={{ flex: 1, position: 'relative', minHeight: 0 }}
       />
+      {loadError && (
+        <div
+          style={{
+            flex: 1,
+            padding: '1rem',
+            overflow: 'auto',
+            fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
+            fontSize: '0.875rem',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-all',
+            color: 'var(--foreground)',
+          }}
+        >
+          {code}
+        </div>
+      )}
     </div>
   );
 }

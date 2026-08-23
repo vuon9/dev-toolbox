@@ -77,6 +77,7 @@ export function ToolEditorPane({
                   showLineNumbers={showLineNumbers}
                   dataTestId={dataTestId}
                   ariaLabel={ariaLabel || label}
+                  error={error}
                 />
               </Suspense>
             ) : (
@@ -123,7 +124,7 @@ export function ToolEditorPane({
               placeholder={placeholder}
               dataTestId={dataTestId}
               ariaLabel={ariaLabel || label}
-            />
+            />{' '}
           </Suspense>
         ) : (
           <CodeEditor
