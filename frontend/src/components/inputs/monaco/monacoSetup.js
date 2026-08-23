@@ -4,11 +4,19 @@ export function getMonaco() {
   if (!monacoPromise) {
     monacoPromise = Promise.all([
       import('monaco-editor/editor/editor.api.js'),
+      // Language contributions: wire workers AND register tokenizers
+      import('monaco-editor/language/json/monaco.contribution.js'),
+      import('monaco-editor/language/css/monaco.contribution.js'),
+      import('monaco-editor/language/html/monaco.contribution.js'),
+      // Plain Monarch languages (tokenization only)
+      import('monaco-editor/languages/definitions/xml/register.js'),
+      import('monaco-editor/languages/definitions/swift/register.js'),
+      // Workers
       import('monaco-editor/editor/editor.worker.js?worker'),
       import('monaco-editor/language/json/json.worker.js?worker'),
       import('monaco-editor/language/css/css.worker.js?worker'),
       import('monaco-editor/language/html/html.worker.js?worker'),
-    ]).then(([monaco, editorWorker, jsonWorker, cssWorker, htmlWorker]) => {
+    ]).then(([monaco, _json, _css, _html, _xml, _swift, editorWorker, jsonWorker, cssWorker, htmlWorker]) => {
       globalThis.MonacoEnvironment = {
         getWorker(_workerId, label) {
           if (label === 'json') return new jsonWorker.default();

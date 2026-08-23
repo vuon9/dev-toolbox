@@ -73,6 +73,8 @@ export default function ToolLayout({
       data-layout-direction={layout.direction}
       style={{
         position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
         flex: 1,
         minHeight: 0,
         ...style,
