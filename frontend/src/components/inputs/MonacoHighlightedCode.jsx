@@ -39,7 +39,6 @@ export default function MonacoHighlightedCode({
   useMonacoDevtoolboxTheme();
   const [ready, setReady] = useState(false);
 
-
   useEffect(() => {
     codeRef.current = code;
   });
