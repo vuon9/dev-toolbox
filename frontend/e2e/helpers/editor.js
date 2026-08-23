@@ -17,8 +17,42 @@ export async function fillEditor(page, testId, value) {
     return;
   }
 
+  // Wait for the editor surface to mount (Monaco initializes async).
+  await expect
+    .poll(() => content.locator('.view-lines, .cm-editor').count(), { timeout: 15000 })
+    .toBeGreaterThan(0);
+
   await content.click();
   await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
+
+  const monacoLines = content.locator('.view-line');
+  if ((await monacoLines.count()) > 0) {
+    // Monaco (EditContext-based): insertText commits atomically, unlike
+    // per-key typing which autocomplete widgets can garble.
+    if (!value) {
+      await page.keyboard.press('Backspace');
+      return;
+    }
+    await page.keyboard.insertText(value);
+    // Let the EditContext composition fully commit before probing; an early
+    // evaluate can truncate it to the first character.
+    await page.waitForTimeout(1000);
+    // EditContext commits long insertions progressively; poll the Monaco model
+    // (the source of onChange/React state), not the rendered view.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          (v) =>
+            (window.__monaco?.editor.getModels() ?? []).some(
+              (m) => m.getValue() === v || m.getValue().endsWith(`\n${v}`)
+            ),
+          value
+        )
+      )
+      .toBe(true);
+    return;
+  }
+
   await page.keyboard.press('Backspace');
   if (value) {
     await page.keyboard.type(value);
@@ -32,6 +66,13 @@ export async function readEditorText(page, testId) {
   const tag = await editableTag(content);
   if (tag === 'textarea' || tag === 'input') {
     return content.inputValue();
+  }
+
+  const monacoLines = content.locator('.view-line');
+  if ((await monacoLines.count()) > 0) {
+    return monacoLines.evaluateAll((lines) =>
+      lines.map((line) => (line.textContent ?? '').replace(/\u00a0/g, ' ').trimEnd()).join('\n')
+    );
   }
 
   return content

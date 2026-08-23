@@ -167,10 +167,11 @@ export function ThemeProvider({ children }) {
       setThemeName,
       theme,
       actualType,
+      palette,
       editorExtensions,
       allThemes,
     }),
-    [themeMode, setThemeMode, themeName, setThemeName, theme, actualType, editorExtensions]
+    [themeMode, setThemeMode, themeName, setThemeName, theme, actualType, palette, editorExtensions]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

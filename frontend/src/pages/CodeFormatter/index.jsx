@@ -314,6 +314,7 @@ export default function CodeFormatter() {
           language={language}
           dataTestId="code-formatter-input"
           ariaLabel="Input"
+          impl="monaco"
         />
         <div className="flex flex-col flex-1 min-h-0">
           <ToolEditorPane
@@ -327,6 +328,7 @@ export default function CodeFormatter() {
             dataTestId="code-formatter-output"
             ariaLabel="Output"
             error={!!error}
+            impl="monaco"
           />
           <FilterBar
             value={filter}
