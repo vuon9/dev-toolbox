@@ -16,24 +16,37 @@ export function getMonaco() {
       import('monaco-editor/language/json/json.worker.js?worker'),
       import('monaco-editor/language/css/css.worker.js?worker'),
       import('monaco-editor/language/html/html.worker.js?worker'),
-    ]).then(([monaco, _json, _css, _html, _xml, _swift, editorWorker, jsonWorker, cssWorker, htmlWorker]) => {
-      globalThis.MonacoEnvironment = {
-        getWorker(_workerId, label) {
-          if (label === 'json') return new jsonWorker.default();
-          if (label === 'css' || label === 'scss' || label === 'less')
-            return new cssWorker.default();
-          if (label === 'html' || label === 'handlebars' || label === 'razor')
-            return new htmlWorker.default();
-          return new editorWorker.default();
-        },
-      };
-      // Expose a minimal, read-only snapshot for tests/e2e without leaking
-      // the full editor API to page scripts.
-      if (typeof globalThis !== 'undefined') {
-        globalThis.__monacoModels = () => monaco.editor.getModels().map((m) => m.getValue());
+    ]).then(
+      ([
+        monaco,
+        _json,
+        _css,
+        _html,
+        _xml,
+        _swift,
+        editorWorker,
+        jsonWorker,
+        cssWorker,
+        htmlWorker,
+      ]) => {
+        globalThis.MonacoEnvironment = {
+          getWorker(_workerId, label) {
+            if (label === 'json') return new jsonWorker.default();
+            if (label === 'css' || label === 'scss' || label === 'less')
+              return new cssWorker.default();
+            if (label === 'html' || label === 'handlebars' || label === 'razor')
+              return new htmlWorker.default();
+            return new editorWorker.default();
+          },
+        };
+        // Expose a minimal, read-only snapshot for tests/e2e without leaking
+        // the full editor API to page scripts.
+        if (typeof globalThis !== 'undefined') {
+          globalThis.__monacoModels = () => monaco.editor.getModels().map((m) => m.getValue());
+        }
+        return monaco;
       }
-      return monaco;
-    });
+    );
   }
   return monacoPromise;
 }
