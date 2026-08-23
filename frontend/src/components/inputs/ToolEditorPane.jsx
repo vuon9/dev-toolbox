@@ -28,6 +28,7 @@ export function ToolEditorPane({
   ariaLabel,
   className,
   impl = 'codemirror',
+  wordWrap = true,
 }) {
   return (
     <div className={cn('flex flex-col flex-1 min-h-0', className)}>
@@ -75,6 +76,7 @@ export function ToolEditorPane({
                   language={language}
                   copyable={false}
                   showLineNumbers={showLineNumbers}
+                  wordWrap={wordWrap}
                   dataTestId={dataTestId}
                   ariaLabel={ariaLabel || label}
                   error={error}
@@ -121,6 +123,7 @@ export function ToolEditorPane({
               language={language}
               readOnly={false}
               showLineNumbers={showLineNumbers}
+              wordWrap={wordWrap}
               placeholder={placeholder}
               dataTestId={dataTestId}
               ariaLabel={ariaLabel || label}

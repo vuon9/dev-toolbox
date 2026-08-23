@@ -30,6 +30,7 @@ export default function MonacoCodeEditor({
   ariaLabel,
   showLineNumbers = false,
   error = false,
+  wordWrap = true,
   className = '',
   style = {},
 }) {
@@ -64,6 +65,7 @@ export default function MonacoCodeEditor({
           domReadOnly: readOnly,
           lineNumbers: showLineNumbers ? 'on' : 'off',
           contextmenu: !readOnly,
+          wordWrap: wordWrap ? 'on' : 'off',
           ariaLabel: ariaLabel || label || placeholder || 'Code editor',
           ...(placeholder ? { placeholder } : {}),
         });
@@ -110,6 +112,7 @@ export default function MonacoCodeEditor({
       readOnly,
       domReadOnly: readOnly,
       lineNumbers: showLineNumbers ? 'on' : 'off',
+      wordWrap: wordWrap ? 'on' : 'off',
       contextmenu: !readOnly,
       ...(placeholder ? { placeholder } : {}),
       ...(ariaLabel || label ? { ariaLabel: ariaLabel || label } : {}),

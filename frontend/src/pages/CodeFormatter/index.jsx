@@ -189,6 +189,9 @@ export default function CodeFormatter() {
   const [highlightOn, setHighlightOn] = useState(
     () => localStorage.getItem(`${TOOL_KEY}-editor-highlight`) !== 'false'
   );
+  const [wordWrap, setWordWrap] = useState(
+    () => localStorage.getItem(`${TOOL_KEY}-word-wrap`) !== 'false'
+  );
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState(
@@ -300,6 +303,35 @@ export default function CodeFormatter() {
             Minify
           </Button>
           <EditorToggle enabled={highlightOn} onToggle={setHighlightOn} toolKey={TOOL_KEY} />
+          <button
+            onClick={() => {
+              const next = !wordWrap;
+              setWordWrap(next);
+              try {
+                localStorage.setItem(`${TOOL_KEY}-word-wrap`, JSON.stringify(next));
+              } catch {
+                /* ignore */
+              }
+            }}
+            title={wordWrap ? 'Disable word wrap' : 'Enable word wrap'}
+            aria-pressed={wordWrap}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              padding: '6px',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '4px',
+              color: wordWrap ? 'var(--foreground)' : 'var(--muted-foreground)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <FileText style={{ width: '16px', height: '16px', opacity: wordWrap ? 1 : 0.4 }} />
+          </button>
         </div>
       </div>
 
@@ -315,6 +347,7 @@ export default function CodeFormatter() {
           dataTestId="code-formatter-input"
           ariaLabel="Input"
           impl="monaco"
+          wordWrap={wordWrap}
         />
         <div className="flex flex-col flex-1 min-h-0">
           <ToolEditorPane
@@ -327,8 +360,8 @@ export default function CodeFormatter() {
             placeholder="Formatted output will appear here..."
             dataTestId="code-formatter-output"
             ariaLabel="Output"
-            error={!!error}
             impl="monaco"
+            wordWrap={wordWrap}
           />
           <FilterBar
             value={filter}
@@ -342,8 +375,9 @@ export default function CodeFormatter() {
               style={{
                 padding: '8px 12px',
                 borderRadius: '6px',
+                marginBottom: '8px',
                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                border: '1px solid #ef4444',
                 color: '#ef4444',
                 fontSize: '12px',
                 fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",

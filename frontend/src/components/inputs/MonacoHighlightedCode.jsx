@@ -32,6 +32,7 @@ export default function MonacoHighlightedCode({
   dataTestId,
   ariaLabel,
   error = false,
+  wordWrap = true,
 }) {
   const containerRef = useRef(null);
   const editorRef = useRef(null);
@@ -59,6 +60,7 @@ export default function MonacoHighlightedCode({
           language: MONACO_LANGUAGE_IDS[language?.toLowerCase()] || 'plaintext',
           theme: 'devtoolbox',
           lineNumbers: showLineNumbers ? 'on' : 'off',
+          wordWrap: wordWrap ? 'on' : 'off',
           ariaLabel: ariaLabel || label || 'Read-only code output',
         });
         editorRef.current = editor;

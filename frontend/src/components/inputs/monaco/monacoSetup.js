@@ -8,9 +8,11 @@ export function getMonaco() {
       import('monaco-editor/language/json/monaco.contribution.js'),
       import('monaco-editor/language/css/monaco.contribution.js'),
       import('monaco-editor/language/html/monaco.contribution.js'),
-      // Plain Monarch languages (tokenization only)
+      // Plain Monarch languages: tokenizers live in definitions/*/register.js
       import('monaco-editor/languages/definitions/xml/register.js'),
       import('monaco-editor/languages/definitions/swift/register.js'),
+      import('monaco-editor/languages/definitions/css/register.js'),
+      import('monaco-editor/languages/definitions/html/register.js'),
       // Workers
       import('monaco-editor/editor/editor.worker.js?worker'),
       import('monaco-editor/language/json/json.worker.js?worker'),
