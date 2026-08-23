@@ -75,7 +75,7 @@ export default function MonacoCodeEditor({
       if (editor) {
         const model = editor.getModel();
         editor.dispose();
-        model?.dispose();
+        if (model && !model.isDisposed()) model.dispose();
         editorRef.current = null;
       }
     };

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { getMonaco, applyDevtoolboxTheme } from './monaco/monacoSetup';
+import { getMonaco } from './monaco/monacoSetup';
 import { useMonacoDevtoolboxTheme } from './monaco/useMonacoTheme';
 import { MONACO_LANGUAGE_IDS } from './monaco/languages';
-import { useTheme } from '../../context/ThemeContext';
 import ToolCopyButton from './ToolCopyButton';
 
 const READ_ONLY_OPTIONS = {
@@ -37,9 +36,9 @@ export default function MonacoHighlightedCode({
   const editorRef = useRef(null);
   const codeRef = useRef(code);
 
-  const { palette, actualType } = useTheme();
   useMonacoDevtoolboxTheme();
   const [ready, setReady] = useState(false);
+
 
   useEffect(() => {
     codeRef.current = code;
@@ -50,11 +49,6 @@ export default function MonacoHighlightedCode({
     let cancelled = false;
     getMonaco().then((monaco) => {
       if (cancelled || !containerRef.current || editorRef.current) return;
-      applyDevtoolboxTheme(monaco, {
-        actualType,
-        colors: palette.colors,
-        tokenColors: palette.tokenColors,
-      });
       const editor = monaco.editor.create(containerRef.current, {
         ...READ_ONLY_OPTIONS,
         value: codeRef.current ?? '',
@@ -72,7 +66,7 @@ export default function MonacoHighlightedCode({
       if (editor) {
         const model = editor.getModel();
         editor.dispose();
-        model?.dispose();
+        if (model && !model.isDisposed()) model.dispose();
         editorRef.current = null;
       }
     };

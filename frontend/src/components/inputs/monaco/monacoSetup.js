@@ -69,9 +69,12 @@ export function normalizeColor(value) {
     if (!c || c.startsWith('var(')) return null;
   }
   if (/^#[0-9a-f]{3,8}$/i.test(c)) {
-    if (c.length === 5 || c.length === 7) return null;
-    if (c.length === 4) return '#' + [...c.slice(1)].map((ch) => ch + ch).join('');
-    return c.slice(0, 9);
+    const hex = c.slice(1);
+    // Expand #RGB / #RGBA short forms; pass #RRGGBB / #RRGGBBAA through
+    if (hex.length === 3 || hex.length === 4) {
+      return '#' + [...hex].map((ch) => ch + ch).join('');
+    }
+    return '#' + hex;
   }
   const ctx = getColorCtx();
   if (!ctx) return null;

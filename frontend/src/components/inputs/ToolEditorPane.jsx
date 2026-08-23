@@ -119,6 +119,7 @@ export function ToolEditorPane({
               onChange={(val) => onChange?.(val)}
               language={language}
               readOnly={false}
+              showLineNumbers={showLineNumbers}
               placeholder={placeholder}
               dataTestId={dataTestId}
               ariaLabel={ariaLabel || label}
