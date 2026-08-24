@@ -41,10 +41,30 @@ export function getMonaco() {
             return new editorWorker.default();
           },
         };
-        // Expose a minimal, read-only snapshot for tests/e2e without leaking
-        // the full editor API to page scripts.
+        // Expose a minimal read-only snapshot plus value get/set helpers mapped
+        // by the pane's data-testid, for tests/e2e, without leaking the full
+        // editor API to page scripts. Each .monaco-editor node carries data-uri
+        // pointing to its model, so we map testId → element → URI → model.
         if (typeof globalThis !== 'undefined') {
           globalThis.__monacoModels = () => monaco.editor.getModels().map((m) => m.getValue());
+          globalThis.__monacoGetValue = (testId) => {
+            const el = document.querySelector(`[data-testid="${testId}"] .monaco-editor`);
+            const uri = el?.getAttribute('data-uri');
+            if (!uri) return null;
+            const model = monaco.editor.getModels().find((m) => m.uri.toString() === uri);
+            return model ? model.getValue() : null;
+          };
+          globalThis.__monacoSetValue = (testId, value) => {
+            const el = document.querySelector(`[data-testid="${testId}"] .monaco-editor`);
+            const uri = el?.getAttribute('data-uri');
+            const model = uri
+              ? monaco.editor.getModels().find((m) => m.uri.toString() === uri)
+              : null;
+            const target = model || monaco.editor.getModels()[0];
+            if (!target || target.isDisposed()) return false;
+            target.setValue(value);
+            return target.getValue() === value;
+          };
         }
         return monaco;
       }

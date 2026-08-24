@@ -137,6 +137,7 @@ function FilterBar({ value, onChange, placeholder, show, error }) {
         display: 'flex',
         flexDirection: 'column',
         gap: '6px',
+        marginTop: '8px',
         padding: '8px 12px',
         backgroundColor: error ? 'rgba(239, 68, 68, 0.1)' : 'var(--muted)',
         borderRadius: '6px',

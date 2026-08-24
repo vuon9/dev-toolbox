@@ -27,26 +27,27 @@ export async function fillEditor(page, testId, value) {
 
   const monacoLines = content.locator('.view-line');
   if ((await monacoLines.count()) > 0) {
-    // Monaco (EditContext-based): insertText commits atomically, unlike
-    // per-key typing which autocomplete widgets can garble.
+    // Monaco (EditContext-based): use model.setValue() directly instead of
+    // insertText to avoid auto-indent reformatting multiline content. Map the
+    // pane's content element to its Monaco model via the exposed helper.
     if (!value) {
-      await page.keyboard.press('Backspace');
+      await page.evaluate((id) => window.__monacoSetValue?.(id, ''), `${testId}-content`);
+      await page.waitForTimeout(300);
       return;
     }
-    await page.keyboard.insertText(value);
-    // Let the EditContext composition fully commit before probing; an early
-    // evaluate can truncate it to the first character.
-    await page.waitForTimeout(1000);
-    // EditContext commits long insertions progressively; poll the Monaco model
-    // (the source of onChange/React state), not the rendered view.
+    const contentId = `${testId}-content`;
     await expect
-      .poll(() =>
-        page.evaluate(
-          (v) => (window.__monacoModels?.() ?? []).some((m) => m === v || m.endsWith(`\n${v}`)),
-          value
-        )
+      .poll(
+        async () =>
+          await page.evaluate(
+            ([id, v]) => window.__monacoSetValue?.(id, v) ?? false,
+            [contentId, value]
+          ),
+        { timeout: 5000 }
       )
       .toBe(true);
+    // Let React state sync after the model change
+    await page.waitForTimeout(300);
     return;
   }
 
@@ -67,9 +68,13 @@ export async function readEditorText(page, testId) {
 
   const monacoLines = content.locator('.view-line');
   if ((await monacoLines.count()) > 0) {
-    return monacoLines.evaluateAll((lines) =>
-      lines.map((line) => (line.textContent ?? '').replace(/\u00a0/g, ' ').trimEnd()).join('\n')
+    // Read straight from the Monaco model (mapped by content element) so tabs
+    // and exact whitespace survive; Monaco renders tabs as spaces in the DOM.
+    const modelValue = await page.evaluate(
+      (id) => window.__monacoGetValue?.(id) ?? null,
+      `${testId}-content`
     );
+    if (modelValue != null) return modelValue;
   }
 
   return content

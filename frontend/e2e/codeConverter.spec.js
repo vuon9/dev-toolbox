@@ -103,7 +103,7 @@ test.describe('Code Converter', () => {
   });
 
   test('shows error for invalid JSON with YAML method', async ({ page }) => {
-    await fillEditor(page, 'code-converter-input', 'not valid json');
+    await fillEditor(page, 'code-converter-input', '{unclosed');
     // Error should appear in the output pane (border turns red)
     await expectEditorText(page, 'code-converter-output', '');
   });
