@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/boombuler/barcode v1.1.0
-	github.com/brianvoe/gofakeit/v7 v7.15.0
+	github.com/brianvoe/gofakeit/v7 v7.16.0
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/gin-contrib/cors v1.7.7
 	github.com/golang-jwt/jwt/v5 v5.3.1
