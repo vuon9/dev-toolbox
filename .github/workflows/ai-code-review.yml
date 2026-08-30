@@ -8,8 +8,8 @@ name: ai-code-review
 #       permissions:
 #         contents: read
 #         pull-requests: write
-#         issues: read
-#       uses: vuon9/gh-workflows/.github/workflows/ai-code-review-reusable.yml@v0.1.9
+#         issues: write
+#       uses: vuon9/gh-workflows/.github/workflows/ai-code-review.yml@v0.4.0
 #       with:
 #         model: opencode/muse-spark-1.2-contributor-free  # optional
 #         prompt: "Custom prompt"         # optional
@@ -37,8 +37,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      issues: read
-    uses: vuon9/gh-workflows/.github/workflows/ai-code-review-reusable.yml@v0.1.9
+      issues: write
+    uses: vuon9/gh-workflows/.github/workflows/ai-code-review.yml@v0.4.0
     with:
       mode: pr
     secrets:
@@ -48,8 +48,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      issues: read
-    uses: vuon9/gh-workflows/.github/workflows/ai-code-review-reusable.yml@v0.1.9
+      issues: write
+    uses: vuon9/gh-workflows/.github/workflows/ai-code-review.yml@v0.4.0
     with:
       mode: comment
     secrets:
