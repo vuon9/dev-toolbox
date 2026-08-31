@@ -1,0 +1,16 @@
+export const MONACO_LANGUAGE_IDS = {
+  json: 'json',
+  javascript: 'javascript',
+  typescript: 'typescript',
+  html: 'html',
+  xml: 'xml',
+  css: 'css',
+  sql: 'sql',
+  java: 'java',
+  swift: 'swift',
+  yaml: 'yaml',
+  markdown: 'markdown',
+  shell: 'shell',
+  go: 'go',
+  python: 'python',
+};

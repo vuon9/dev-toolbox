@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { FileText } from 'lucide-react';
 import { codeConverterAPI } from './api/codeConverterAPI';
 import { ToolHeader } from '../../components/ToolUI';
 import { ToolEditorPane, EditorToggle } from '../../components/inputs';
@@ -27,6 +28,9 @@ export default function CodeConverter() {
   const [highlightOn, setHighlightOn] = useState(
     () => localStorage.getItem(`${TOOL_KEY}-editor-highlight`) !== 'false'
   );
+  const [wordWrap, setWordWrap] = useState(
+    () => localStorage.getItem(`${TOOL_KEY}-word-wrap`) !== 'false'
+  );
   const [method, setMethod] = useState(METHODS[0]);
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -40,6 +44,13 @@ export default function CodeConverter() {
     }
     try {
       const result = await codeConverterAPI.Convert(text, meth);
+      // The backend returns HTTP 200 with a structured {error} body for invalid
+      // input; treat it as an error rather than as output.
+      if (result && typeof result === 'object' && result.error) {
+        setError(result.error);
+        setOutput('');
+        return;
+      }
       setOutput(result);
       setError('');
     } catch (err) {
@@ -92,6 +103,33 @@ export default function CodeConverter() {
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <EditorToggle enabled={highlightOn} onToggle={setHighlightOn} toolKey={TOOL_KEY} />
+          <button
+            onClick={() => {
+              const next = !wordWrap;
+              setWordWrap(next);
+              try {
+                localStorage.setItem(`${TOOL_KEY}-word-wrap`, JSON.stringify(next));
+              } catch {}
+            }}
+            title={wordWrap ? 'Disable word wrap' : 'Enable word wrap'}
+            aria-pressed={wordWrap}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              padding: '6px',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '4px',
+              color: wordWrap ? 'var(--foreground)' : 'var(--muted-foreground)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <FileText style={{ width: '16px', height: '16px', opacity: wordWrap ? 1 : 0.4 }} />
+          </button>
         </div>
       </div>
 
@@ -106,6 +144,8 @@ export default function CodeConverter() {
           highlightOn={highlightOn}
           dataTestId="code-converter-input"
           ariaLabel="Input"
+          impl="monaco"
+          wordWrap={wordWrap}
         />
         <ToolEditorPane
           label="Output"
@@ -118,6 +158,8 @@ export default function CodeConverter() {
           highlightOn={highlightOn}
           dataTestId="code-converter-output"
           ariaLabel="Output"
+          impl="monaco"
+          wordWrap={wordWrap}
         />
       </ToolLayout>
     </div>

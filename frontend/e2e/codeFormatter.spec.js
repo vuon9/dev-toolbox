@@ -103,7 +103,12 @@ test.describe('Code Formatter', () => {
     await page.getByRole('button', { name: 'Load Sample' }).click();
 
     await expectEditorNotEmpty(page, 'code-formatter-output');
-    await expect(page.getByTestId('code-formatter-output').locator('.cm-gutters')).toBeVisible();
+    await expect(
+      page
+        .getByTestId('code-formatter-output')
+        .locator('.cm-gutters, .monaco-editor .margin-view-overlays')
+        .first()
+    ).toBeVisible();
   });
 
   test('filter input filters JSON output', async ({ page }) => {
@@ -135,7 +140,8 @@ test.describe('Code Formatter', () => {
     const copyButton = page.locator('button[title="Copy to clipboard"]').first();
     await copyButton.click();
 
-    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboardText).toBe('copy this input');
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe('copy this input');
   });
 });

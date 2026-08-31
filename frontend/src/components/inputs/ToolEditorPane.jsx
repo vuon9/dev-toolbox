@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { ToolCopyButton } from './ToolCopyButton';
 import CodeEditor from './CodeEditor';
 import HighlightedCode from './HighlightedCode';
 import { cn } from '../../utils/cn';
+
+const MonacoCodeEditor = React.lazy(() => import('./MonacoCodeEditor'));
+const MonacoHighlightedCode = React.lazy(() => import('./MonacoHighlightedCode'));
 
 const INDICATOR_COLORS = {
   green: { bg: 'rgba(34, 197, 94, 0.15)', fg: '#22c55e' },
@@ -24,6 +27,8 @@ export function ToolEditorPane({
   dataTestId,
   ariaLabel,
   className,
+  impl = 'codemirror',
+  wordWrap = true,
 }) {
   return (
     <div className={cn('flex flex-col flex-1 min-h-0', className)}>
@@ -53,14 +58,40 @@ export function ToolEditorPane({
       >
         {readOnly ? (
           highlightOn ? (
-            <HighlightedCode
-              code={value}
-              language={language}
-              copyable={false}
-              showLineNumbers={showLineNumbers}
-              dataTestId={dataTestId}
-              ariaLabel={ariaLabel || label}
-            />
+            impl === 'monaco' ? (
+              <Suspense
+                fallback={
+                  <HighlightedCode
+                    code={value}
+                    language={language}
+                    copyable={false}
+                    showLineNumbers={showLineNumbers}
+                    dataTestId={dataTestId}
+                    ariaLabel={ariaLabel || label}
+                  />
+                }
+              >
+                <MonacoHighlightedCode
+                  code={value}
+                  language={language}
+                  copyable={false}
+                  showLineNumbers={showLineNumbers}
+                  wordWrap={wordWrap}
+                  dataTestId={dataTestId}
+                  ariaLabel={ariaLabel || label}
+                  error={error}
+                />
+              </Suspense>
+            ) : (
+              <HighlightedCode
+                code={value}
+                language={language}
+                copyable={false}
+                showLineNumbers={showLineNumbers}
+                dataTestId={dataTestId}
+                ariaLabel={ariaLabel || label}
+              />
+            )
           ) : (
             <textarea
               data-testid={dataTestId ? `${dataTestId}-content` : undefined}
@@ -72,6 +103,32 @@ export function ToolEditorPane({
               style={{ borderColor: error ? '#ef4444' : undefined }}
             />
           )
+        ) : impl === 'monaco' ? (
+          <Suspense
+            fallback={
+              <CodeEditor
+                value={value}
+                onChange={(val) => onChange?.(val)}
+                language={language}
+                highlight={highlightOn}
+                placeholder={placeholder}
+                dataTestId={dataTestId}
+                ariaLabel={ariaLabel || label}
+              />
+            }
+          >
+            <MonacoCodeEditor
+              value={value}
+              onChange={(val) => onChange?.(val)}
+              language={language}
+              readOnly={false}
+              showLineNumbers={showLineNumbers}
+              wordWrap={wordWrap}
+              placeholder={placeholder}
+              dataTestId={dataTestId}
+              ariaLabel={ariaLabel || label}
+            />{' '}
+          </Suspense>
         ) : (
           <CodeEditor
             value={value}
